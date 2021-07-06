@@ -1,0 +1,15 @@
+<idea-plugin>
+  <version>0.0.1</version>
+  <change-notes>&lt;h3&gt;Added&lt;/h3&gt;</change-notes>
+  <idea-version since-build="202" until-build="203.*"/>
+  <id>org.example.it-hurts-idea-dev.ithurts.plugin</id>
+  <name>Plugin display name here</name>
+  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <description>&lt;p&gt;Fixes the problem with not responding shortcuts on some of Linux systems (Ubuntu, Mint) when current keyboard layout is not latin.&lt;/p&gt;</description>
+  <depends>com.intellij.modules.platform</depends>
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable parentId="tools" instance="dev.ithurts.plugin.settings.ItHurtsSettingsConfigurable" id="dev.ithurts.plugin.settings.ItHurtsSettingsConfigurable" displayName="It Hurts Settings"/>
+    <applicationService serviceImplementation="dev.ithurts.plugin.service.CredentialsService"/>
+  </extensions>
+  <actions/>
+</idea-plugin>
