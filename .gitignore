@@ -1,2 +1,4 @@
 g/build/
 /.gradle/
+/build/
+/.gradle/
