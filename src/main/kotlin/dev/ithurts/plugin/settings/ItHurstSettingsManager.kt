@@ -2,10 +2,10 @@ package dev.ithurts.plugin.settings
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intellij.ide.BrowserUtil
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
-import dev.ithurts.plugin.ItHurtsClient
+import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts
+import dev.ithurts.plugin.model.Tokens
 import dev.ithurts.plugin.service.CredentialsService
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.apache.commons.codec.digest.DigestUtils
@@ -27,16 +27,18 @@ class ItHurstSettingsManager() {
     private val authCodeLabel: JLabel = JLabel("Enter the code here");
     private val authCodeField: JTextField = JTextField("")
 
+    private val accountInfoLabel: JLabel = JLabel()
+
     private var codeVerifier: String? = null
 
     private val objectMapper = ObjectMapper()
+    private val credentialsService = service<CredentialsService>()
 
     init {
         connectButton.addActionListener(this::doConnect)
         submitCodeButton.addActionListener(this::submitAuthCode)
         val boxLayout = BoxLayout(panel, BoxLayout.PAGE_AXIS)
         panel.layout = boxLayout
-        panel.add(connectButton)
 
         authCodePanel.add(authCodeLabel)
         authCodeField.maximumSize = Dimension(200, 30)
@@ -50,15 +52,49 @@ class ItHurstSettingsManager() {
 
         panel.add(Box.createRigidArea(Dimension(0, 5)))
         panel.add(generateCodeAgainButton)
+        panel.add(accountInfoLabel)
+        panel.add(connectButton)
+
+        authCodePanel.isVisible = false;
+        connectButton.isVisible = false;
+        accountInfoLabel.text = "Loading.."
+
+        if (credentialsService.hasCredentials()) {
+            showAccountInfo()
+        } else {
+            showInitialScreen()
+        }
+    }
+
+    private fun showInitialScreen() {
+        connectButton.isVisible = true;
         authCodePanel.isVisible = false;
         generateCodeAgainButton.isVisible = false;
+        accountInfoLabel.isVisible = false;
+    }
+
+    private fun showAuthCodeEnteringPanel() {
+        connectButton.isVisible = false;
+        authCodePanel.isVisible = true;
+        generateCodeAgainButton.isVisible = true;
+    }
+
+    private fun showAccountInfo() {
+        ItHurtsClient.me(
+            {
+                accountInfoLabel.text = "Logged as ${it.name}"
+                connectButton.isVisible = false;
+                authCodePanel.isVisible = false;
+                generateCodeAgainButton.isVisible = false;
+                accountInfoLabel.isVisible = true;
+            }, { showInitialScreen() })
     }
 
     private fun submitAuthCode(e: ActionEvent) {
         val authCode = this.authCodeField.text;
         ItHurtsClient.getTokens(authCode, this.codeVerifier!!) {
-            val credentialsService = service<CredentialsService>()
             credentialsService.saveTokens(it)
+            showAccountInfo();
         }
     }
 
@@ -66,9 +102,7 @@ class ItHurstSettingsManager() {
         this.codeVerifier = generateCodeVerifier()
         val url = buildAuthUrl(this.codeVerifier!!)
 
-        connectButton.isVisible = false
-        authCodePanel.isVisible = true;
-        generateCodeAgainButton.isVisible = true;
+        showAuthCodeEnteringPanel()
 
         BrowserUtil.browse(url)
     }
@@ -78,11 +112,11 @@ class ItHurstSettingsManager() {
 
     private fun buildAuthUrl(codeVerifier: String): String {
         val codeChallenge = Base64.getUrlEncoder().encodeToString(
-                DigestUtils.sha256Hex(codeVerifier.toByteArray(StandardCharsets.UTF_8)).toByteArray()
+            DigestUtils.sha256Hex(codeVerifier.toByteArray(StandardCharsets.UTF_8)).toByteArray()
         );
         return Consts.authUrl.toHttpUrl().newBuilder()
-                .addQueryParameter("code_challenge", codeChallenge)
-                .build().toString()
+            .addQueryParameter("code_challenge", codeChallenge)
+            .build().toString()
     }
 
 }
