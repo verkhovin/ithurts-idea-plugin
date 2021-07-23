@@ -6,9 +6,13 @@ import com.intellij.openapi.components.service
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.model.Me
 import dev.ithurts.plugin.model.Tokens
-import dev.ithurts.plugin.service.CredentialsService
+import dev.ithurts.plugin.ide.service.CredentialsService
+import dev.ithurts.plugin.model.TechDebt
+import dev.ithurts.plugin.model.TechDebtReport
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
 import java.io.IOException
 
@@ -31,8 +35,28 @@ object ItHurtsClient {
     }
 
     fun me(callback: (Me) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
-        val url = Consts.meUrl.toHttpUrl()
         val accessToken = service<CredentialsService>().getAccessToken()
+        val request = Request.Builder().url(Consts.meUrl)
+            .addHeader("Authorization", "Bearer $accessToken")
+            .build()
+        executeAsync(request, callback, errorCallback)
+    }
+
+    fun report(techDebtReport: TechDebtReport, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+        val accessToken = service<CredentialsService>().getAccessToken()
+        val body = mapper.writeValueAsString(techDebtReport)
+            .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder().url(Consts.reportDebtUrl).method("POST", body)
+            .addHeader("Authorization", "Bearer $accessToken")
+            .build()
+        executeAsync(request, {_: Any? -> callback() }, errorCallback)
+    }
+
+    fun getDebtsForRepo(remoteUrl: String, callback: (debts: Set<TechDebt>) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+        val accessToken = service<CredentialsService>().getAccessToken()
+        val url = Consts.reportDebtUrl.toHttpUrl().newBuilder()
+            .addQueryParameter("remote_url", remoteUrl)
+            .build()
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()

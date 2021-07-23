@@ -2,7 +2,7 @@ package dev.ithurts.plugin.client
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intellij.openapi.components.service
-import dev.ithurts.plugin.service.CredentialsService
+import dev.ithurts.plugin.ide.service.CredentialsService
 import okhttp3.Interceptor
 import okhttp3.Response
 

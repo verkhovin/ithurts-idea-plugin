@@ -1,7 +1,6 @@
-package dev.ithurts.plugin.settings
+package dev.ithurts.plugin.ide.settings
 
 import com.intellij.openapi.options.Configurable
-import com.intellij.ui.EditorTextField
 import javax.swing.JComponent
 
 class ItHurtsSettingsConfigurable: Configurable {

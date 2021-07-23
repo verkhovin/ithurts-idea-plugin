@@ -1,4 +1,4 @@
-package dev.ithurts.plugin.service
+package dev.ithurts.plugin.ide.service
 
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials

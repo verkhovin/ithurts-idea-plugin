@@ -1,12 +1,11 @@
-package dev.ithurts.plugin.settings
+package dev.ithurts.plugin.ide.settings
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.components.service
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts
-import dev.ithurts.plugin.model.Tokens
-import dev.ithurts.plugin.service.CredentialsService
+import dev.ithurts.plugin.ide.service.CredentialsService
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.RandomStringUtils
