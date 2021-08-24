@@ -2,7 +2,10 @@ package dev.ithurts.plugin.client
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.ui.Messages
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.model.Me
 import dev.ithurts.plugin.model.Tokens
@@ -17,7 +20,7 @@ import okhttp3.internal.EMPTY_REQUEST
 import java.io.IOException
 
 object ItHurtsClient {
-    private val mapper = ObjectMapper()
+    private val mapper = ObjectMapper().registerModule(KotlinModule())
     private val client = OkHttpClient.Builder().addInterceptor(
         ItHurtsTokenExpiredInterceptor(this::refreshTokens)
     ).addInterceptor {
@@ -103,6 +106,11 @@ object ItHurtsClient {
 
     private fun handleError(e: IOException) {
         e.printStackTrace() // FIXME write full log and make a hint
+        ApplicationManager.getApplication().invokeLater {
+            Messages.showErrorDialog("Something went wrong. Please, try again later. Reason: ${e.message}",
+                "Debt Report Failed"
+            )
+        }
     }
 
     private fun handleError(error: ItHurtsError) {
