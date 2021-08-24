@@ -1,5 +1,7 @@
 package dev.ithurts.plugin.client
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -18,9 +20,10 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
 import java.io.IOException
+import kotlin.reflect.KClass
 
 object ItHurtsClient {
-    private val mapper = ObjectMapper().registerModule(KotlinModule())
+    private val mapper = ObjectMapper().registerModule(KotlinModule()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private val client = OkHttpClient.Builder().addInterceptor(
         ItHurtsTokenExpiredInterceptor(this::refreshTokens)
     ).addInterceptor {
@@ -63,7 +66,7 @@ object ItHurtsClient {
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, callback, errorCallback)
+        executeAsync(request, callback, object: TypeReference<Set<TechDebt>>() {},errorCallback)
     }
 
     private fun refreshTokens() {
@@ -84,13 +87,21 @@ object ItHurtsClient {
         )
     }
 
-    private inline fun <reified T> executeAsync(request: Request, crossinline callback: (T) -> Unit,
+    private inline fun <reified T> executeAsync(request: Request,
+                                                crossinline callback: (T) -> Unit,
                                                 crossinline errorCallback: (ItHurtsError) -> Unit = this::handleError) {
         client.newCall(request).enqueue(handle { _, response -> handleResponse(response, callback, errorCallback) })
     }
 
+    private inline fun <reified T> executeAsync(request: Request,
+                                                crossinline callback: (T) -> Unit,
+                                                responseTypeReference: TypeReference<T>,
+                                                crossinline errorCallback: (ItHurtsError) -> Unit = this::handleError) {
+        client.newCall(request).enqueue(handle { _, response -> handleResponse(response, callback, errorCallback, responseTypeReference) })
+    }
+
     private inline fun <reified T> handleResponse(response: Response, successCallback: (T) -> Unit,
-                                                  errorCallback: (ItHurtsError) -> Unit) {
+                                                  errorCallback: (ItHurtsError) -> Unit, typeReference: TypeReference<T>? = null) {
         if (response.code >= 400) {
             val error: ItHurtsError = try {
                 mapper.readValue(response.body!!.string(), ItHurtsError::class.java)
@@ -99,7 +110,11 @@ object ItHurtsClient {
             }
             errorCallback(error)
         } else {
-            val entity = mapper.readValue(response.body!!.string(), T::class.java)
+            val entity = if (typeReference == null) {
+                mapper.readValue(response.body!!.string(), T::class.java)
+            } else {
+                mapper.readValue(response.body!!.string(), typeReference)
+            }
             successCallback(entity)
         }
     }
