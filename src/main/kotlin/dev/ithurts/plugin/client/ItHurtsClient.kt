@@ -32,9 +32,9 @@ object ItHurtsClient {
 
     fun getTokens(authCode: String, codeVerifier: String, callback: (Tokens) -> Unit) {
         val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
-                .addQueryParameter("authorization_code", authCode)
-                .addQueryParameter("code_verifier", codeVerifier)
-                .addQueryParameter("grant_type", "authorization_code")
+                .addQueryParameter("authorizationCode", authCode)
+                .addQueryParameter("codeVerifier", codeVerifier)
+                .addQueryParameter("grantType", "authorization_code")
                 .build()
         val request = Request.Builder().url(url).method("POST", EMPTY_REQUEST).build()
         executeAsync(request, callback)
@@ -61,7 +61,7 @@ object ItHurtsClient {
     fun getDebtsForRepo(remoteUrl: String, callback: (debts: Set<TechDebt>) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
         val url = Consts.reportDebtUrl.toHttpUrl().newBuilder()
-            .addQueryParameter("remote_url", remoteUrl)
+            .addQueryParameter("remoteUrl", remoteUrl)
             .build()
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
@@ -73,8 +73,8 @@ object ItHurtsClient {
         val credentialsService = service<CredentialsService>()
         val refreshToken = credentialsService.getRefreshToken();
         val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
-            .addQueryParameter("grant_type", "refresh_token")
-            .addQueryParameter("refresh_token", refreshToken)
+            .addQueryParameter("grantType", "refresh_token")
+            .addQueryParameter("refreshToken", refreshToken)
             .build()
         val call = OkHttpClient().newCall(Request.Builder().url(url)
             .method("POST", EMPTY_REQUEST)

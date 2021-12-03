@@ -2,6 +2,7 @@ package dev.ithurts.plugin.ide
 
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
@@ -10,6 +11,7 @@ import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.common.Consts.SAVED_DESCRIPTION_PROPERTY_KEY
 import dev.ithurts.plugin.common.Consts.SAVED_TITLE_PROPERTY_KEY
+import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
 import dev.ithurts.plugin.model.TechDebtReport
 import java.awt.BorderLayout
 import java.awt.Color
@@ -21,6 +23,7 @@ import kotlin.math.roundToInt
 
 class ReportDebtDialog(
     private val project: Project,
+    private val editor: Editor, //todo not needed
     private val filePath: String,
     private val startLine: Int,
     private val endLine: Int
@@ -89,6 +92,14 @@ class ReportDebtDialog(
                 )
             }
         )
+        ///
+        val addLineHighlighter = editor.markupModel.addLineHighlighter(
+            null, startLine, 1
+        )
+
+        addLineHighlighter.gutterIconRenderer = DebtGutterIconRenderer(titleField.text)
+
+        ///
         super.doOKAction()
     }
 }

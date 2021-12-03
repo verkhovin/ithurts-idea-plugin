@@ -16,6 +16,8 @@
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ProjectDebtsService"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
+<!--        <codeInsight.lineMarkerProvider language=""-->
+<!--                                        implementationClass="dev.ithurts.plugin.ide.editor.ItHurtsLineMarkerProvider"/>-->
     </extensions>
 
     <actions>

@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -22,9 +23,10 @@ class PostDebtAction : AnAction() {
 
         ReportDebtDialog(
             project,
+            editor,
             relativeFilePath(editor, project),
-            editor.selectionModel.selectionStartPosition!!.line,
-            editor.selectionModel.selectionEndPosition!!.line
+            editor.offsetToLogicalPosition(editor.selectionModel.selectionStart).line,
+            editor.offsetToLogicalPosition(editor.selectionModel.selectionEnd).line,
         ).showAndGet()
     }
 

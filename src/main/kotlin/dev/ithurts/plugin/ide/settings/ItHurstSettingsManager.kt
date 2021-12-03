@@ -35,6 +35,7 @@ class ItHurstSettingsManager() {
 
     init {
         connectButton.addActionListener(this::doConnect)
+        generateCodeAgainButton.addActionListener(this::doConnect)
         submitCodeButton.addActionListener(this::submitAuthCode)
         val boxLayout = BoxLayout(panel, BoxLayout.PAGE_AXIS)
         panel.layout = boxLayout
@@ -84,7 +85,7 @@ class ItHurstSettingsManager() {
                 accountInfoLabel.text = "Logged as ${it.name}"
                 connectButton.isVisible = false;
                 authCodePanel.isVisible = false;
-                generateCodeAgainButton.isVisible = false;
+                generateCodeAgainButton.isVisible = true;
                 accountInfoLabel.isVisible = true;
             }, { showInitialScreen() })
     }

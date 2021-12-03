@@ -25,11 +25,11 @@ class ItHurtsProjectInitiator : StartupActivity {
         properties.setValue(PROJECT_REMOTE_PROPERTY_KEY, remoteUrl)
 
         val projectDebtsService = project.service<ProjectDebtsService>()
-        ItHurtsClient.getDebtsForRepo(
-            remoteUrl,
-            { projectDebtsService.indexDebts(it) },
-            { throw Exception(it.message) }
-        )
+//        ItHurtsClient.getDebtsForRepo(
+//            remoteUrl,
+//            { projectDebtsService.indexDebts(it) },
+//            { throw Exception(it.message) }
+//        )
     }
 
 }
