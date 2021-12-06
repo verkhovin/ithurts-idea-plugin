@@ -92,14 +92,6 @@ class ReportDebtDialog(
                 )
             }
         )
-        ///
-        val addLineHighlighter = editor.markupModel.addLineHighlighter(
-            null, startLine, 1
-        )
-
-        addLineHighlighter.gutterIconRenderer = DebtGutterIconRenderer(titleField.text)
-
-        ///
         super.doOKAction()
     }
 }

@@ -12,7 +12,7 @@ import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.model.Me
 import dev.ithurts.plugin.model.Tokens
 import dev.ithurts.plugin.ide.service.CredentialsService
-import dev.ithurts.plugin.model.TechDebt
+import dev.ithurts.plugin.model.DebtDTO
 import dev.ithurts.plugin.model.TechDebtReport
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -20,7 +20,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
 import java.io.IOException
-import kotlin.reflect.KClass
 
 object ItHurtsClient {
     private val mapper = ObjectMapper().registerModule(KotlinModule()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -52,21 +51,21 @@ object ItHurtsClient {
         val accessToken = service<CredentialsService>().getAccessToken()
         val body = mapper.writeValueAsString(techDebtReport)
             .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val request = Request.Builder().url(Consts.reportDebtUrl).method("POST", body)
+        val request = Request.Builder().url(Consts.debtsUrl).method("POST", body)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
         executeAsync(request, {_: Any? -> callback() }, errorCallback)
     }
 
-    fun getDebtsForRepo(remoteUrl: String, callback: (debts: Set<TechDebt>) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+    fun getDebtsForRepo(remoteUrl: String, callback: (debts: Set<DebtDTO>) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
-        val url = Consts.reportDebtUrl.toHttpUrl().newBuilder()
+        val url = Consts.debtsUrl.toHttpUrl().newBuilder()
             .addQueryParameter("remoteUrl", remoteUrl)
             .build()
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, callback, object: TypeReference<Set<TechDebt>>() {},errorCallback)
+        executeAsync(request, callback, object: TypeReference<Set<DebtDTO>>() {},errorCallback)
     }
 
     private fun refreshTokens() {

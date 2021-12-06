@@ -25,6 +25,9 @@ repositories {
 }
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.5.0")
+    implementation("org.thymeleaf:thymeleaf:3.0.13.RELEASE") {
+        exclude("org.slf4j", "slf4j-api")
+    }
 }
 // Configure gradle-intellij-dev.ithurts.plugin dev.ithurts.plugin.
 // Read more: https://github.com/JetBrains/gradle-intellij-plugin

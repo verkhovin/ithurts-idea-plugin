@@ -14,8 +14,14 @@
                                  displayName="It Hurts Settings"/>
         <applicationService serviceImplementation="dev.ithurts.plugin.ide.service.CredentialsService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ProjectDebtsService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.DebtStorageService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.DebtBrowserService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.DebtEditorDisplayService"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
+        <toolWindow id="It Hurts" anchor="right" factoryClass="dev.ithurts.plugin.ide.ItHurtsToolWindowFactory"
+            doNotActivateOnStart="true" >
+
+        </toolWindow>
 <!--        <codeInsight.lineMarkerProvider language=""-->
 <!--                                        implementationClass="dev.ithurts.plugin.ide.editor.ItHurtsLineMarkerProvider"/>-->
     </extensions>

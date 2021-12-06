@@ -1,0 +1,37 @@
+<html>
+<head>
+    <script>
+        function navigate_to_code(debtId) {
+            [( ${navigateQuery.inject("debtId")})]
+        }
+
+        function vote(debtId) {
+            [( ${voteQuery.inject("debtId")})]
+        }
+
+        function showRepoDebts() {
+            [( ${showRepoDebtsQuery.inject(this)})]
+        }
+
+        function showFileDebts() {
+            [( ${showFileDebtsQuery.inject(this)})]
+        }
+
+    </script>
+</head>
+<body>
+
+<a href="javascript:showRepoDebts()">Root</a>
+<a href="javascript:showFileDebts()" th:if="${level.toString() != 'REPO'}"
+   th:text="'> ' + ${debts[0].filePath.substring(debts[0].filePath.lastIndexOf('/') + 1).trim()}"></a>
+<a th:if="${level.toString() == 'LINE'}" th:text="'> from line ' + ${debts[0].startLine}"></a>
+
+<div th:each="debt : ${debts}">
+    <p th:text="${debt.title}"></p>
+    <p th:text="${debt.description}"></p>
+    <a th:href="'javascript:navigate_to_code(\'' + ${debt.id} + '\')'">Navigate to code</a>
+    <a href="#">It hurts</a>
+    <hr>
+</div>
+</body>
+</html>

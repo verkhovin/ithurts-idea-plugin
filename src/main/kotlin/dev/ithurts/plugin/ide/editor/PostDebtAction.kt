@@ -4,17 +4,9 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.components.service
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.vfs.VfsUtilCore
 import dev.ithurts.plugin.common.Consts.PROJECT_REMOTE_PROPERTY_KEY
+import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.ReportDebtDialog
-import dev.ithurts.plugin.ide.service.ProjectDebtsService
-import org.jetbrains.annotations.Nullable
 
 class PostDebtAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
@@ -24,21 +16,10 @@ class PostDebtAction : AnAction() {
         ReportDebtDialog(
             project,
             editor,
-            relativeFilePath(editor, project),
+            FileUtils.getRelativePath(project, editor),
             editor.offsetToLogicalPosition(editor.selectionModel.selectionStart).line,
             editor.offsetToLogicalPosition(editor.selectionModel.selectionEnd).line,
         ).showAndGet()
-    }
-
-    private fun relativeFilePath(
-        editor: Editor,
-        project: Project
-    ): String {
-        val virtualFile = FileDocumentManager.getInstance().getFile(editor.document)
-            ?: throw Exception("Failed to load file")
-        val projectRoot = ProjectFileIndex.SERVICE.getInstance(project).getContentRootForFile(virtualFile)
-            ?: throw Exception("Failed to locate project root")
-        return VfsUtilCore.getRelativePath(virtualFile, projectRoot)!!
     }
 
     override fun update(e: AnActionEvent) {
