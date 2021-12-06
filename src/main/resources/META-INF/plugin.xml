@@ -11,12 +11,12 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable parentId="tools" instance="dev.ithurts.plugin.ide.settings.ItHurtsSettingsConfigurable"
                                  id="dev.ithurts.plugin.ide.settings.ItHurtsSettingsConfigurable"
-                                 displayName="It Hurts Settings"/>
+                                 displayName="It Hurts"/>
         <applicationService serviceImplementation="dev.ithurts.plugin.ide.service.CredentialsService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.DebtStorageService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.DebtBrowserService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.DebtEditorDisplayService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtStorageService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtBrowserService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <toolWindow id="It Hurts" anchor="right" factoryClass="dev.ithurts.plugin.ide.ItHurtsToolWindowFactory"
             doNotActivateOnStart="true" >
@@ -27,7 +27,7 @@
     </extensions>
 
     <actions>
-        <action id="ItHurtsActions.PostDebtAction" class="dev.ithurts.plugin.ide.editor.PostDebtAction"
+        <action id="ItHurtsActions.PostDebtAction" class="dev.ithurts.plugin.ide.action.PostDebtAction"
                 text="Report the Debt"
                 description="Report as a technical debt to ItHurts">
             <add-to-group group-id="EditorPopupMenu" anchor="first" />

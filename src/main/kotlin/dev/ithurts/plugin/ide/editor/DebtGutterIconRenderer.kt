@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import dev.ithurts.plugin.ide.service.DebtBrowserService
+import dev.ithurts.plugin.ide.service.debt.DebtBrowserService
 import javax.swing.Icon
 
 class DebtGutterIconRenderer(

@@ -1,4 +1,4 @@
-package dev.ithurts.plugin.ide.service
+package dev.ithurts.plugin.ide.service.debt
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditor

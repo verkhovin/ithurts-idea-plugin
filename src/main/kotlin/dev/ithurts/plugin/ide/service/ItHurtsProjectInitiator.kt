@@ -11,6 +11,8 @@ import com.intellij.openapi.vcs.LocalFilePath
 import com.intellij.openapi.vfs.VirtualFile
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts.PROJECT_REMOTE_PROPERTY_KEY
+import dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService
+import dev.ithurts.plugin.ide.service.debt.DebtStorageService
 import git4idea.repo.GitRepositoryManager
 
 class ItHurtsProjectInitiator : StartupActivity {

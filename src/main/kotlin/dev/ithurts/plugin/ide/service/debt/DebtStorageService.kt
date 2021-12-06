@@ -1,4 +1,4 @@
-package dev.ithurts.plugin.ide.service
+package dev.ithurts.plugin.ide.service.debt
 
 import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.model.DebtDTO
