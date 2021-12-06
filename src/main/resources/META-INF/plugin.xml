@@ -32,6 +32,19 @@
                 description="Report as a technical debt to ItHurts">
             <add-to-group group-id="EditorPopupMenu" anchor="first" />
         </action>
+        <action id="ItHurtsActions.ShowFileDebtsAction" class="dev.ithurts.plugin.ide.action.ShowFileDebtsAction"
+                text="Show File Technical Debts "
+                description="Show technical debts reported to ItHurts for currently opened file">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift H"/>
+        </action>
+        <action id="ItHurtsActions.ShowRepoDebtsAction" class="dev.ithurts.plugin.ide.action.ShowRepoDebtsAction"
+                text="Show Repository Technical Debts"
+                description="Show technical debts reported to ItHurts for this repository">
+        </action>
+        <action id="ItHurtsActions.FetchDebtsAction" class="dev.ithurts.plugin.ide.action.FetchDebtsAction"
+                text="Fetch Technical Debts from ItHurts"
+                description="Fetch newly reported technical debts from ItHurts to IDE">
+        </action>
 
     </actions>
 </idea-plugin>

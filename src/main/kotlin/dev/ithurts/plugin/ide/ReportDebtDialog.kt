@@ -1,11 +1,13 @@
 package dev.ithurts.plugin.ide
 
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.playback.commands.ActionCommand
 import com.intellij.ui.JBColor
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts
@@ -17,6 +19,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Toolkit
+import java.awt.event.InputEvent
 import javax.swing.*
 import kotlin.math.roundToInt
 
@@ -82,6 +85,7 @@ class ReportDebtDialog(
                 endLine
             ),
             {
+                fetchDebts()
                 propertiesComponent.setValue(SAVED_TITLE_PROPERTY_KEY, null)
                 propertiesComponent.setValue(SAVED_DESCRIPTION_PROPERTY_KEY, null)
             },
@@ -93,5 +97,15 @@ class ReportDebtDialog(
             }
         )
         super.doOKAction()
+    }
+
+    private fun fetchDebts() {
+        val actionManager = ActionManager.getInstance()
+        ApplicationManager.getApplication().invokeLater {
+            actionManager.tryToExecute(
+                actionManager.getAction("ItHurtsActions.FetchDebtsAction"),
+                ActionCommand.getInputEvent("ItHurtsActions.FetchDebtsAction"), null, null, true
+            )
+        }
     }
 }

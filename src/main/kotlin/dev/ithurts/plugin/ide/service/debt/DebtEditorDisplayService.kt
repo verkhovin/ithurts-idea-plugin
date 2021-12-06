@@ -1,12 +1,14 @@
 package dev.ithurts.plugin.ide.service.debt
 
 import com.intellij.openapi.components.service
+import com.intellij.openapi.editor.markup.MarkupModel
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
+import dev.ithurts.plugin.model.DebtDTO
 
 class DebtEditorDisplayService(private val project: Project) {
     fun renderDebtHighlighters() {
@@ -22,17 +24,34 @@ class DebtEditorDisplayService(private val project: Project) {
             val debtsService = project.service<DebtStorageService>()
             val relativePath = FileUtils.getRelativePath(project, file)
             val debts = debtsService.getDebts(relativePath)
+
+            val markupModel = fileEditor.editor.markupModel
+            removeOldHighlighters(markupModel)
+
             if (debts.isEmpty()) return@forEach
             val debtGroupsByStartLine = debts.groupBy { it.startLine }
 
-            debtGroupsByStartLine.forEach { (line, debts) ->
-                val addLineHighlighter = fileEditor.editor.markupModel.addLineHighlighter(
-                    null, line, 1
-                )
-                addLineHighlighter.gutterIconRenderer =
-                    DebtGutterIconRenderer(debts.size, debts[0].title, relativePath, line)
-            }
-
+            renderNewHighlighters(debtGroupsByStartLine, markupModel, relativePath)
         }
+    }
+
+    private fun renderNewHighlighters(
+        debtGroupsByStartLine: Map<Int, List<DebtDTO>>,
+        markupModel: MarkupModel,
+        relativePath: String
+    ) {
+        debtGroupsByStartLine.forEach { (line, debts) ->
+            val lineHighlighter = markupModel.addLineHighlighter(
+                null, line, 1
+            )
+            lineHighlighter.gutterIconRenderer =
+                DebtGutterIconRenderer(debts.size, debts[0].title, relativePath, line)
+        }
+    }
+
+    private fun removeOldHighlighters(markupModel: MarkupModel) {
+        markupModel.allHighlighters.filter { highlighter ->
+            highlighter.gutterIconRenderer is DebtGutterIconRenderer
+        }.forEach { markupModel.removeHighlighter(it) }
     }
 }

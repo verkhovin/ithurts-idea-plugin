@@ -22,7 +22,8 @@ import okhttp3.internal.EMPTY_REQUEST
 import java.io.IOException
 
 object ItHurtsClient {
-    private val mapper = ObjectMapper().registerModule(KotlinModule()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private val mapper = ObjectMapper().registerModule(KotlinModule())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private val client = OkHttpClient.Builder().addInterceptor(
         ItHurtsTokenExpiredInterceptor(this::refreshTokens)
     ).addInterceptor {
@@ -31,10 +32,10 @@ object ItHurtsClient {
 
     fun getTokens(authCode: String, codeVerifier: String, callback: (Tokens) -> Unit) {
         val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
-                .addQueryParameter("authorizationCode", authCode)
-                .addQueryParameter("codeVerifier", codeVerifier)
-                .addQueryParameter("grantType", "authorization_code")
-                .build()
+            .addQueryParameter("authorizationCode", authCode)
+            .addQueryParameter("codeVerifier", codeVerifier)
+            .addQueryParameter("grantType", "authorization_code")
+            .build()
         val request = Request.Builder().url(url).method("POST", EMPTY_REQUEST).build()
         executeAsync(request, callback)
     }
@@ -54,10 +55,14 @@ object ItHurtsClient {
         val request = Request.Builder().url(Consts.debtsUrl).method("POST", body)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, {_: Any? -> callback() }, errorCallback)
+        executeAsync(request, { _: Any? -> callback() }, errorCallback)
     }
 
-    fun getDebtsForRepo(remoteUrl: String, callback: (debts: Set<DebtDTO>) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+    fun getDebtsForRepo(
+        remoteUrl: String,
+        callback: (debts: Set<DebtDTO>) -> Unit,
+        errorCallback: (ItHurtsError) -> Unit
+    ) {
         val accessToken = service<CredentialsService>().getAccessToken()
         val url = Consts.debtsUrl.toHttpUrl().newBuilder()
             .addQueryParameter("remoteUrl", remoteUrl)
@@ -65,7 +70,7 @@ object ItHurtsClient {
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, callback, object: TypeReference<Set<DebtDTO>>() {},errorCallback)
+        executeAsync(request, callback, object : TypeReference<Set<DebtDTO>>() {}, errorCallback)
     }
 
     private fun refreshTokens() {
@@ -75,10 +80,12 @@ object ItHurtsClient {
             .addQueryParameter("grantType", "refresh_token")
             .addQueryParameter("refreshToken", refreshToken)
             .build()
-        val call = OkHttpClient().newCall(Request.Builder().url(url)
-            .method("POST", EMPTY_REQUEST)
-            .addHeader("Accept", "application/json")
-            .build())
+        val call = OkHttpClient().newCall(
+            Request.Builder().url(url)
+                .method("POST", EMPTY_REQUEST)
+                .addHeader("Accept", "application/json")
+                .build()
+        )
         handleResponse(
             call.execute(),
             { tokens: Tokens -> credentialsService.saveTokens(tokens) },
@@ -86,21 +93,28 @@ object ItHurtsClient {
         )
     }
 
-    private inline fun <reified T> executeAsync(request: Request,
-                                                crossinline callback: (T) -> Unit,
-                                                crossinline errorCallback: (ItHurtsError) -> Unit = this::handleError) {
+    private inline fun <reified T> executeAsync(
+        request: Request,
+        crossinline callback: (T) -> Unit,
+        crossinline errorCallback: (ItHurtsError) -> Unit = this::handleError
+    ) {
         client.newCall(request).enqueue(handle { _, response -> handleResponse(response, callback, errorCallback) })
     }
 
-    private inline fun <reified T> executeAsync(request: Request,
-                                                crossinline callback: (T) -> Unit,
-                                                responseTypeReference: TypeReference<T>,
-                                                crossinline errorCallback: (ItHurtsError) -> Unit = this::handleError) {
-        client.newCall(request).enqueue(handle { _, response -> handleResponse(response, callback, errorCallback, responseTypeReference) })
+    private inline fun <reified T> executeAsync(
+        request: Request,
+        crossinline callback: (T) -> Unit,
+        responseTypeReference: TypeReference<T>,
+        crossinline errorCallback: (ItHurtsError) -> Unit = this::handleError
+    ) {
+        client.newCall(request)
+            .enqueue(handle { _, response -> handleResponse(response, callback, errorCallback, responseTypeReference) })
     }
 
-    private inline fun <reified T> handleResponse(response: Response, successCallback: (T) -> Unit,
-                                                  errorCallback: (ItHurtsError) -> Unit, typeReference: TypeReference<T>? = null) {
+    private inline fun <reified T> handleResponse(
+        response: Response, successCallback: (T) -> Unit,
+        errorCallback: (ItHurtsError) -> Unit, typeReference: TypeReference<T>? = null
+    ) {
         if (response.code >= 400) {
             val error: ItHurtsError = try {
                 mapper.readValue(response.body!!.string(), ItHurtsError::class.java)
@@ -109,6 +123,11 @@ object ItHurtsClient {
             }
             errorCallback(error)
         } else {
+            val body = response.body!!
+            if(body.contentLength() == 0L) {
+                successCallback(null as T)
+                return
+            }
             val entity = if (typeReference == null) {
                 mapper.readValue(response.body!!.string(), T::class.java)
             } else {
@@ -121,7 +140,8 @@ object ItHurtsClient {
     private fun handleError(e: IOException) {
         e.printStackTrace() // FIXME write full log and make a hint
         ApplicationManager.getApplication().invokeLater {
-            Messages.showErrorDialog("Something went wrong. Please, try again later. Reason: ${e.message}",
+            Messages.showErrorDialog(
+                "Something went wrong. Please, try again later. Reason: ${e.message}",
                 "Debt Report Failed"
             )
         }
@@ -131,7 +151,7 @@ object ItHurtsClient {
         throw Exception(error.message)
     }
 
-    private fun handle(onSuccess: (Call, Response) -> Unit) = object: Callback {
+    private fun handle(onSuccess: (Call, Response) -> Unit) = object : Callback {
         override fun onFailure(call: Call, e: IOException) = handleError(e)
 
         override fun onResponse(call: Call, response: Response) = onSuccess(call, response)
