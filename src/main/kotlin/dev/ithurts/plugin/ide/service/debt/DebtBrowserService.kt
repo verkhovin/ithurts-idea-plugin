@@ -64,7 +64,7 @@ class DebtBrowserService(private val project: Project) {
         val file = FileUtils.virtualFileByPath(project, debt.filePath)
         ApplicationManager.getApplication().invokeLater {
             FileEditorManager.getInstance(project).openTextEditor(
-                OpenFileDescriptor(project, file, debt.startLine, 0), true
+                OpenFileDescriptor(project, file, debt.startLine - 1, 0), true
             )
         }
     }

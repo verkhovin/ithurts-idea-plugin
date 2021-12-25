@@ -12,19 +12,20 @@ class DebtGutterIconRenderer(
     private val debtsCount: Int,
     private val fistDebtTitle: String,
     private val filePath: String,
-    private val lineNumber: Int
+    private val lineNumber: Int,
+    private val muted: Boolean
 ) : GutterIconRenderer() {
-    private var clicked = false;
+    private var clicked = false
     override fun equals(other: Any?): Boolean {
         return false
     }
 
     override fun hashCode(): Int {
-        return 0;
+        return 0
     }
 
     override fun getIcon(): Icon {
-        return AllIcons.Actions.New
+        return if (muted) AllIcons.Debugger.Question_badge else AllIcons.Actions.New
     }
 
     override fun getTooltipText(): String {

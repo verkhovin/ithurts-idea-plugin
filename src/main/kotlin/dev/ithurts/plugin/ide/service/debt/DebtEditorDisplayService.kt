@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
 import dev.ithurts.plugin.model.DebtDTO
+import dev.ithurts.plugin.model.DebtStatus
 
 class DebtEditorDisplayService(private val project: Project) {
     fun renderDebtHighlighters() {
@@ -42,10 +43,10 @@ class DebtEditorDisplayService(private val project: Project) {
     ) {
         debtGroupsByStartLine.forEach { (line, debts) ->
             val lineHighlighter = markupModel.addLineHighlighter(
-                null, line, 1
+                null, line - 1, 1
             )
             lineHighlighter.gutterIconRenderer =
-                DebtGutterIconRenderer(debts.size, debts[0].title, relativePath, line)
+                DebtGutterIconRenderer(debts.size, debts[0].title, relativePath, line, debts.all { it.status != DebtStatus.OPEN })
         }
     }
 
