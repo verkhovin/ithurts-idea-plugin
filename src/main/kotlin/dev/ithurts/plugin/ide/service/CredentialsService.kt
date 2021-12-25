@@ -30,7 +30,7 @@ class CredentialsService {
 
     private fun saveToken(token: String?, name: String) {
         val accessTokenAttributes = createCredentialAttributes(name)
-        val accessToken = Credentials("", token)
+        val accessToken = if (token == null) null else Credentials("", token)
         PasswordSafe.instance.set(accessTokenAttributes, accessToken)
     }
     private fun createCredentialAttributes(key: String) = CredentialAttributes(generateServiceName("ItHurts", key))

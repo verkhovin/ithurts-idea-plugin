@@ -23,21 +23,21 @@ import java.io.IOException
 
 object ItHurtsClient {
     private val mapper = ObjectMapper().registerModule(KotlinModule())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val client = OkHttpClient.Builder().addInterceptor(
         ItHurtsTokenExpiredInterceptor(this::refreshTokens)
     ).addInterceptor {
         it.proceed(it.request().newBuilder().addHeader("Accept", "application/json").build())
     }.build()
 
-    fun getTokens(authCode: String, codeVerifier: String, callback: (Tokens) -> Unit) {
+    fun getTokens(authCode: String, codeVerifier: String, callback: (Tokens) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
             .addQueryParameter("authorizationCode", authCode)
             .addQueryParameter("codeVerifier", codeVerifier)
             .addQueryParameter("grantType", "authorization_code")
             .build()
         val request = Request.Builder().url(url).method("POST", EMPTY_REQUEST).build()
-        executeAsync(request, callback)
+        executeAsync(request, callback, errorCallback)
     }
 
     fun me(callback: (Me) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
@@ -75,7 +75,7 @@ object ItHurtsClient {
 
     private fun refreshTokens() {
         val credentialsService = service<CredentialsService>()
-        val refreshToken = credentialsService.getRefreshToken();
+        val refreshToken = credentialsService.getRefreshToken()
         val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
             .addQueryParameter("grantType", "refresh_token")
             .addQueryParameter("refreshToken", refreshToken)

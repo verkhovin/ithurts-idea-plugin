@@ -5,17 +5,17 @@ import javax.swing.JComponent
 
 class ItHurtsSettingsConfigurable: Configurable {
     override fun createComponent(): JComponent {
-        return ItHurstSettingsManager().panel
+        return ItHurtsSettingsWindow().content
     }
 
     override fun isModified(): Boolean {
-        return false;
+        return false
     }
 
     override fun apply() {
     }
 
     override fun getDisplayName(): String {
-        return "The Option";
+        return "The Option"
     }
 }
