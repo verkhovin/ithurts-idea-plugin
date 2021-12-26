@@ -33,12 +33,17 @@ class ItHurtsProjectInitiator : StartupActivity {
                 ApplicationManager.getApplication().invokeLater {
                     project.service<DebtEditorDisplayService>().renderDebtHighlighters()
                 }
+                ItHurtsInitiatorState.isInitialized = true
             },
             { throw Exception(it.message) }
         )
+
     }
 
     private fun registerFileOpenedEventHandler(project: Project) {
+        if(ItHurtsInitiatorState.isInitialized) {
+            return
+        }
         project.messageBus.connect(project)
             .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object : FileEditorManagerListener {
                 override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
@@ -52,6 +57,8 @@ class ItHurtsProjectInitiator : StartupActivity {
         val debtEditorDisplayService = source.project.service<DebtEditorDisplayService>()
         debtEditorDisplayService.renderDebtHighlighters(source.getEditors(file))
     }
+}
 
-
+object ItHurtsInitiatorState {
+    var isInitialized = false
 }

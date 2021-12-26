@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.jcef.JBCefBrowser
 import com.intellij.ui.jcef.JBCefJSQuery
+import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.model.DebtDTO
 import org.thymeleaf.TemplateEngine
@@ -54,6 +55,7 @@ class DebtBrowserService(private val project: Project) {
 
         context.setVariable("debts", debts)
         context.setVariable("level", showLevel)
+        context.setVariable("dark", UIUtil.isUnderDarcula())
         val stringWriter = StringWriter()
         templateEngine.process("templates/debts.html", context, stringWriter)
         return stringWriter.toString()
