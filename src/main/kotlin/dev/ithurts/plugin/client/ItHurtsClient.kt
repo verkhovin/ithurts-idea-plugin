@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.Messages
@@ -30,7 +33,12 @@ object ItHurtsClient {
         it.proceed(it.request().newBuilder().addHeader("Accept", "application/json").build())
     }.build()
 
-    fun getTokens(authCode: String, codeVerifier: String, callback: (Tokens) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+    fun getTokens(
+        authCode: String,
+        codeVerifier: String,
+        callback: (Tokens) -> Unit,
+        errorCallback: (ItHurtsError) -> Unit
+    ) {
         val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
             .addQueryParameter("authorizationCode", authCode)
             .addQueryParameter("codeVerifier", codeVerifier)
@@ -124,7 +132,7 @@ object ItHurtsClient {
             errorCallback(error)
         } else {
             val body = response.body!!
-            if(body.contentLength() == 0L) {
+            if (body.contentLength() == 0L) {
                 successCallback(null as T)
                 return
             }
@@ -140,9 +148,13 @@ object ItHurtsClient {
     private fun handleError(e: IOException) {
         e.printStackTrace() // FIXME write full log and make a hint
         ApplicationManager.getApplication().invokeLater {
-            Messages.showErrorDialog(
-                "Something went wrong. Please, try again later. Reason: ${e.message}",
-                "Debt Report Failed"
+            Notifications.Bus.notify(
+                Notification(
+                    "",
+                    "Failed to connect to It Hurts",
+                    "Error: ${e.javaClass.simpleName} ${e.message}",
+                    NotificationType.ERROR
+                )
             )
         }
     }
