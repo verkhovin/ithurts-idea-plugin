@@ -6,6 +6,7 @@ data class DebtDTO(
     val title: String,
     val description: String,
     val status: DebtStatus,
+    val resolutionReason: ResolutionReason,
     val filePath: String,
     val startLine: Int,
     val endLine: Int,

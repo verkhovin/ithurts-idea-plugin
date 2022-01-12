@@ -1,8 +1,7 @@
 package dev.ithurts.plugin.model
 
-enum class DebtStatus {
-    OPEN,
-    RESOLVED,
-    PROBABLY_RESOLVED_CODE_DELETED,
-    PROBABLY_RESOLVED_PARTLY_CHANGED,
+enum class DebtStatus(val title: String) {
+    OPEN ("OPEN"),
+    RESOLVED("RESOLVED"),
+    PROBABLY_RESOLVED("PROBABLY RESOLVED"),
 }
