@@ -5,18 +5,18 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
-import com.intellij.openapi.ui.Messages
 import dev.ithurts.plugin.common.Consts
-import dev.ithurts.plugin.model.Me
-import dev.ithurts.plugin.model.Tokens
 import dev.ithurts.plugin.ide.service.CredentialsService
 import dev.ithurts.plugin.model.DebtDTO
+import dev.ithurts.plugin.model.Me
 import dev.ithurts.plugin.model.TechDebtReport
+import dev.ithurts.plugin.model.Tokens
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -25,7 +25,7 @@ import okhttp3.internal.EMPTY_REQUEST
 import java.io.IOException
 
 object ItHurtsClient {
-    private val mapper = ObjectMapper().registerModule(KotlinModule())
+    private val mapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val client = OkHttpClient.Builder().addInterceptor(
         ItHurtsTokenExpiredInterceptor(this::refreshTokens)

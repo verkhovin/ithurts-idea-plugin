@@ -1,10 +1,8 @@
 <idea-plugin>
     <id>dev.ithurts.idea-integration</id>
-    <name>ItHurts Integration</name>
-    <vendor email="support@ithurts.dev" url="http://www.ithurts.dev">ItHurts</vendor>
+    <name>It Hurts Integration</name>
+    <vendor email="n.verkhovin@gmail.com" url="https://ithurts.dev">ItHurts</vendor>
 
-    <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
-         on how to target different products -->
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
 
@@ -19,17 +17,19 @@
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.StagedDebtService"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
-        <toolWindow id="It Hurts" anchor="right" factoryClass="dev.ithurts.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"
-            doNotActivateOnStart="true" />
-        <toolWindow id="Report Tech Debt" anchor="left" factoryClass="dev.ithurts.plugin.ide.toolwindow.ReportDebtToolWindowFactory"
-            doNotActivateOnStart="true" />
+        <toolWindow id="It Hurts" anchor="right"
+                    factoryClass="dev.ithurts.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"
+                    doNotActivateOnStart="true"/>
+        <toolWindow id="Report Tech Debt" anchor="left"
+                    factoryClass="dev.ithurts.plugin.ide.toolwindow.ReportDebtToolWindowFactory"
+                    doNotActivateOnStart="true"/>
     </extensions>
 
     <actions>
         <action id="ItHurtsActions.PostDebtAction" class="dev.ithurts.plugin.ide.action.PostDebtAction"
                 text="Report the Debt"
                 description="Report as a technical debt to ItHurts">
-            <add-to-group group-id="EditorPopupMenu" anchor="first" />
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
         <action id="ItHurtsActions.ShowFileDebtsAction" class="dev.ithurts.plugin.ide.action.ShowFileDebtsAction"
                 text="Show File Technical Debts "

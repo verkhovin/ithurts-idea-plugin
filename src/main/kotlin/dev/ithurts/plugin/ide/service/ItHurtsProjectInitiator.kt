@@ -7,14 +7,12 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
-import com.intellij.openapi.vcs.LocalFilePath
 import com.intellij.openapi.vfs.VirtualFile
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts.PROJECT_REMOTE_PROPERTY_KEY
 import dev.ithurts.plugin.common.RepoUtils
 import dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService
 import dev.ithurts.plugin.ide.service.debt.DebtStorageService
-import git4idea.repo.GitRepositoryManager
 
 class ItHurtsProjectInitiator : StartupActivity {
 
@@ -41,7 +39,7 @@ class ItHurtsProjectInitiator : StartupActivity {
     }
 
     private fun registerFileOpenedEventHandler(project: Project) {
-        if(ItHurtsInitiatorState.isInitialized) {
+        if (ItHurtsInitiatorState.isInitialized) {
             return
         }
         project.messageBus.connect(project)

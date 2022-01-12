@@ -14,7 +14,7 @@ class DebtStorageService(private val project: Project) {
         return debts!!
     }
 
-    fun  getDebts(filePath: String) = debts?.get(filePath) ?: emptyList()
+    fun getDebts(filePath: String) = debts?.get(filePath) ?: emptyList()
 
     fun getDebts(filePath: String, lineNumber: Int) = getDebts(filePath).filter { it.startLine == lineNumber }
 }

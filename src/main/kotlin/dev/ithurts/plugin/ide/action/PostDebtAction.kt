@@ -7,12 +7,10 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.ToolWindowManager
 import dev.ithurts.plugin.common.Consts.PROJECT_REMOTE_PROPERTY_KEY
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.common.UiUtils
 import dev.ithurts.plugin.ide.service.debt.StagedDebtService
-import dev.ithurts.plugin.ide.toolwindow.ReportDebtToolWindow
 
 class PostDebtAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {

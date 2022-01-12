@@ -9,5 +9,5 @@ class TechDebtReport(
     val remoteUrl: String,
     val filePath: String,
     val startLine: Int,
-    val endLine:Int
+    val endLine: Int
 )

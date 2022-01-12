@@ -3,7 +3,7 @@ package dev.ithurts.plugin.common.swing
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 
-interface MouseListenerWrapper: MouseListener {
+interface MouseListenerWrapper : MouseListener {
     override fun mouseClicked(e: MouseEvent?) {
         //do nothing by default
     }

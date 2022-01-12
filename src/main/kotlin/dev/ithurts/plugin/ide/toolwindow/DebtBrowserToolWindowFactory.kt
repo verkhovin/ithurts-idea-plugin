@@ -8,7 +8,7 @@ import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
 import dev.ithurts.plugin.ide.service.debt.DebtBrowserService
 
-class DebtBrowserToolWindowFactory: ToolWindowFactory {
+class DebtBrowserToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val debtBrowserService = project.service<DebtBrowserService>()
         val browser = debtBrowserService.browser

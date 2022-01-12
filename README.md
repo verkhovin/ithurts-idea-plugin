@@ -5,5 +5,13 @@
 [![Downloads](https://img.shields.io/jetbrains/dev.ithurts.plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/dev.ithurts.plugin/PLUGIN_ID)
 
 <!-- Plugin description -->
-Fixes the problem with not responding shortcuts on some of Linux systems (Ubuntu, Mint) when current keyboard layout is not latin.
+This plugin integrates It Hurts with your IDE. 
+
+Available features:
+- Reporting technical debt to It Hurts
+- Browsing reported technical debts
+
+Usage:
+
+After you have installed the plugin, go to <b>Settings</b> -> <b>Tools</b> -> <b>ItHurts</b> and connect plugin to It Hurts.
 <!-- Plugin description end -->

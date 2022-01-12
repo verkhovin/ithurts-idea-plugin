@@ -9,7 +9,6 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.playback.commands.ActionCommand
-import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.JBTextField
@@ -27,7 +26,10 @@ import dev.ithurts.plugin.model.TechDebtReport
 import net.miginfocom.swing.MigLayout
 import java.awt.Cursor
 import java.awt.event.MouseEvent
-import javax.swing.*
+import javax.swing.JButton
+import javax.swing.JComponent
+import javax.swing.JLabel
+import javax.swing.JPanel
 import javax.swing.event.DocumentEvent
 
 

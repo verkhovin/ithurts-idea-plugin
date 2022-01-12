@@ -2,7 +2,6 @@ package dev.ithurts.plugin.ide.settings
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.components.service
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBTextField
@@ -14,6 +13,8 @@ import net.miginfocom.swing.MigLayout
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.RandomStringUtils
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.nio.charset.StandardCharsets
 import java.util.*
 import javax.swing.JButton
@@ -28,6 +29,7 @@ class ItHurtsSettingsWindow {
 
     private val authCodePanel = JPanel(MigLayout("fillx"))
     private val authCodeField: JBTextField = JBTextField()
+    private val copyUrlButton: JButton = JButton("Copy URL")
     private val submitAuthCodeButton: JButton = JButton("Ok")
 
     private val connectedPanel = JPanel(MigLayout("fillx"))
@@ -37,6 +39,7 @@ class ItHurtsSettingsWindow {
 
     private val credentialsService = service<CredentialsService>()
 
+    private var generateCodeUrl: String? = null
     private var codeVerifier: String? = null
 
 
@@ -52,14 +55,18 @@ class ItHurtsSettingsWindow {
         )
 
         authCodeField.emptyText.text = "Code"
+        copyUrlButton.addActionListener {
+            Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(generateCodeUrl), null)
+        }
         submitAuthCodeButton.addActionListener { submitAuthCode() }
         authCodePanel.add(authCodeField, "grow")
-        authCodePanel.add(submitAuthCodeButton)
+        authCodePanel.add(submitAuthCodeButton, "align center, wrap")
+        authCodePanel.add(copyUrlButton, "align center, wrap")
+        authCodePanel.add(generateCodeAgainButton, "align center")
 
         generateCodeAgainButton.addActionListener { navigateToAuthCode() }
         logoutButton.addActionListener { logout() }
         connectedPanel.add(accountInfoLabel, "align center, wrap")
-        connectedPanel.add(generateCodeAgainButton, "align center, wrap")
         connectedPanel.add(logoutButton, "align center, wrap")
 
         if (credentialsService.hasCredentials()) {
@@ -72,8 +79,8 @@ class ItHurtsSettingsWindow {
 
     private fun navigateToAuthCode() {
         this.codeVerifier = generateCodeVerifier()
-        val url = buildAuthUrl(this.codeVerifier!!)
-        BrowserUtil.browse(url)
+        generateCodeUrl = buildAuthUrl(this.codeVerifier!!)
+        BrowserUtil.browse(generateCodeUrl!!)
     }
 
     private fun submitAuthCode() {
@@ -93,7 +100,7 @@ class ItHurtsSettingsWindow {
         }
     }
 
-    private fun logout(){
+    private fun logout() {
         credentialsService.clearTokens()
         show(initialPanel)
     }

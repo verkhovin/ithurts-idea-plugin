@@ -1,6 +1,18 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# non-latin-layout-shortcuts Changelog
+# It Hurts Integration Changelog
 
 ## [Unreleased]
+
+## [0.0.3]
+### Fixed
+- Connectivity issue
+
+## [0.0.2]
+### Fixed
+- Typo :/
+
+## [0.0.1]
 ### Added
+- Basic implementation
+

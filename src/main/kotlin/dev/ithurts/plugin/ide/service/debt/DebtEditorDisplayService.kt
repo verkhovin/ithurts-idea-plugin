@@ -46,7 +46,12 @@ class DebtEditorDisplayService(private val project: Project) {
                 null, line - 1, 1
             )
             lineHighlighter.gutterIconRenderer =
-                DebtGutterIconRenderer(debts.size, debts[0].title, relativePath, line, debts.all { it.status != DebtStatus.OPEN })
+                DebtGutterIconRenderer(
+                    debts.size,
+                    debts[0].title,
+                    relativePath,
+                    line,
+                    debts.all { it.status != DebtStatus.OPEN })
         }
     }
 

@@ -7,6 +7,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.jcef.JBCefBrowser
+import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
 import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.common.FileUtils
@@ -80,7 +81,7 @@ class DebtBrowserService(private val project: Project) {
         callbackName: String,
         callback: (String) -> Unit
     ) {
-        val query = JBCefJSQuery.create(browser)
+        val query = JBCefJSQuery.create(browser as JBCefBrowserBase)
         query.addHandler { param ->
             callback(param).let { null }
         }

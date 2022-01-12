@@ -11,4 +11,11 @@ object RepoUtils {
             true
         )
     )?.remotes?.first { it.name == "origin" }?.firstUrl ?: throw IllegalStateException("No remote found")
+
+//    fun getMainBranch(project: Project) = GitRepositoryManager.getInstance(project).getRepositoryForFileQuick(
+//        LocalFilePath(
+//            project.basePath!!,
+//            true
+//        )
+//    )?.remotes?.first { it.name == "origin" }?.
 }
