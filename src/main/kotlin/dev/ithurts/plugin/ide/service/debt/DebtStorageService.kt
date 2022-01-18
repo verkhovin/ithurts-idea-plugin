@@ -1,16 +1,16 @@
 package dev.ithurts.plugin.ide.service.debt
 
 import com.intellij.openapi.project.Project
-import dev.ithurts.plugin.model.DebtDTO
+import dev.ithurts.plugin.model.DebtDto
 
 class DebtStorageService(private val project: Project) {
-    private var debts: Map<String, List<DebtDTO>>? = null
+    private var debts: Map<String, List<DebtDto>>? = null
 
-    fun indexDebts(debts: Set<DebtDTO>) {
+    fun indexDebts(debts: Set<DebtDto>) {
         this.debts = debts.groupBy { it.filePath }
     }
 
-    fun getDebts(): Map<String, List<DebtDTO>> {
+    fun getDebts(): Map<String, List<DebtDto>> {
         return debts!!
     }
 

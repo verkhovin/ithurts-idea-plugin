@@ -13,7 +13,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.ide.service.CredentialsService
-import dev.ithurts.plugin.model.DebtDTO
+import dev.ithurts.plugin.model.DebtDto
 import dev.ithurts.plugin.model.Me
 import dev.ithurts.plugin.model.TechDebtReport
 import dev.ithurts.plugin.model.Tokens
@@ -66,9 +66,25 @@ object ItHurtsClient {
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
     }
 
+    fun vote(debtId: Long, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+        val accessToken = service<CredentialsService>().getAccessToken()
+        val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/vote").method("POST", EMPTY_REQUEST)
+            .addHeader("Authorization", "Bearer $accessToken")
+            .build()
+        executeAsync(request, { _: Any? -> callback() }, errorCallback)
+    }
+
+    fun downVote(debtId: Long, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+        val accessToken = service<CredentialsService>().getAccessToken()
+        val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/downVote").method("POST", EMPTY_REQUEST)
+            .addHeader("Authorization", "Bearer $accessToken")
+            .build()
+        executeAsync(request, { _: Any? -> callback() }, errorCallback)
+    }
+
     fun getDebtsForRepo(
         remoteUrl: String,
-        callback: (debts: Set<DebtDTO>) -> Unit,
+        callback: (debts: Set<DebtDto>) -> Unit,
         errorCallback: (ItHurtsError) -> Unit
     ) {
         val accessToken = service<CredentialsService>().getAccessToken()
@@ -78,7 +94,7 @@ object ItHurtsClient {
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, callback, object : TypeReference<Set<DebtDTO>>() {}, errorCallback)
+        executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}, errorCallback)
     }
 
     private fun refreshTokens() {

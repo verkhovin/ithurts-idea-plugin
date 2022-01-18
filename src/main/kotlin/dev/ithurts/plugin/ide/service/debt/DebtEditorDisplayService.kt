@@ -8,7 +8,7 @@ import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
-import dev.ithurts.plugin.model.DebtDTO
+import dev.ithurts.plugin.model.DebtDto
 import dev.ithurts.plugin.model.DebtStatus
 
 class DebtEditorDisplayService(private val project: Project) {
@@ -37,7 +37,7 @@ class DebtEditorDisplayService(private val project: Project) {
     }
 
     private fun renderNewHighlighters(
-        debtGroupsByStartLine: Map<Int, List<DebtDTO>>,
+        debtGroupsByStartLine: Map<Int, List<DebtDto>>,
         markupModel: MarkupModel,
         relativePath: String
     ) {

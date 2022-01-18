@@ -1,5 +1,6 @@
 package dev.ithurts.plugin.model
 
-data class AccountDTO(
+
+data class DebtAccountDto(
     val name: String
 )

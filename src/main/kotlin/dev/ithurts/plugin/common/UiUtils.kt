@@ -7,7 +7,7 @@ import dev.ithurts.plugin.ide.toolwindow.ReportDebtToolWindow
 
 object UiUtils {
     fun rerenderReportDebtToolWindow(project: Project): ToolWindow {
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Report Tech Debt")!!
+        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Report Technical Debt")!!
         val contentManager = toolWindow.contentManager
         contentManager.removeAllContents(true)
         contentManager.addContent(ReportDebtToolWindow(project).getContent())
