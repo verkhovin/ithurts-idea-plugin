@@ -25,16 +25,14 @@ class ItHurtsProjectInitiator : StartupActivity {
         val debtStorageService = project.service<DebtStorageService>()
         ItHurtsClient.getDebtsForRepo(
             remoteUrl,
-            {
-                debtStorageService.indexDebts(it)
-                registerFileOpenedEventHandler(project)
-                ApplicationManager.getApplication().invokeLater {
-                    project.service<DebtEditorDisplayService>().renderDebtHighlighters()
-                }
-                ItHurtsInitiatorState.isInitialized = true
-            },
-            { throw Exception(it.message) }
-        )
+        ) {
+            debtStorageService.indexDebts(it)
+            registerFileOpenedEventHandler(project)
+            ApplicationManager.getApplication().invokeLater {
+                project.service<DebtEditorDisplayService>().renderDebtHighlighters()
+            }
+            ItHurtsInitiatorState.isInitialized = true
+        }
 
     }
 

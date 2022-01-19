@@ -17,14 +17,12 @@ class FetchDebtsAction : AnAction() {
 
         ItHurtsClient.getDebtsForRepo(
             RepoUtils.getRemote(project),
-            {
-                debtStorageService.indexDebts(it)
-                ApplicationManager.getApplication().invokeLater {
-                    project.service<DebtEditorDisplayService>().renderDebtHighlighters()
-                    ItHurtsProjectInitiator().runActivity(project)
-                }
-            },
-            { throw Exception(it.message) }
-        )
+        ) {
+            debtStorageService.indexDebts(it)
+            ApplicationManager.getApplication().invokeLater {
+                project.service<DebtEditorDisplayService>().renderDebtHighlighters()
+                ItHurtsProjectInitiator().runActivity(project)
+            }
+        }
     }
 }

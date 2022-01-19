@@ -20,7 +20,7 @@
         <toolWindow id="It Hurts" anchor="right"
                     factoryClass="dev.ithurts.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"
                     doNotActivateOnStart="true"/>
-        <toolWindow id="Report Technical Debt [It Hurts]" anchor="left"
+        <toolWindow id="Report Technical Debt" anchor="left"
                     factoryClass="dev.ithurts.plugin.ide.toolwindow.ReportDebtToolWindowFactory"
                     doNotActivateOnStart="true"/>
     </extensions>

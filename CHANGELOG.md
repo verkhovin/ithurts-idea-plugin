@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.0.6]
+- Debt voting support
+
+### Fixed
+- Minor issues
+
 ## [0.0.3]
 ### Fixed
 - Connectivity issue

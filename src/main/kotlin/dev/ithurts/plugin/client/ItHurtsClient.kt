@@ -85,7 +85,6 @@ object ItHurtsClient {
     fun getDebtsForRepo(
         remoteUrl: String,
         callback: (debts: Set<DebtDto>) -> Unit,
-        errorCallback: (ItHurtsError) -> Unit
     ) {
         val accessToken = service<CredentialsService>().getAccessToken()
         val url = Consts.debtsUrl.toHttpUrl().newBuilder()
@@ -94,7 +93,7 @@ object ItHurtsClient {
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}, errorCallback)
+        executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}, ::handleError)
     }
 
     private fun refreshTokens() {
@@ -148,7 +147,7 @@ object ItHurtsClient {
             errorCallback(error)
         } else {
             val body = response.body!!
-            if (body.contentLength() == 0L) {
+            if (body.contentLength() <= 0L) {
                 successCallback(null as T)
                 return
             }
@@ -176,7 +175,16 @@ object ItHurtsClient {
     }
 
     private fun handleError(error: ItHurtsError) {
-        throw Exception(error.message)
+        ApplicationManager.getApplication().invokeLater {
+            Notifications.Bus.notify(
+                Notification(
+                    "",
+                    "Got an error from It Hurts",
+                    error.message,
+                    NotificationType.ERROR
+                )
+            )
+        }
     }
 
     private fun handle(onSuccess: (Call, Response) -> Unit) = object : Callback {
