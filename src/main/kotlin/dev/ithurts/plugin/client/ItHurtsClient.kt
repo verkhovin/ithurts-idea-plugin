@@ -147,7 +147,7 @@ object ItHurtsClient {
             errorCallback(error)
         } else {
             val body = response.body!!
-            if (body.contentLength() <= 0L) {
+            if (body.contentLength() == 0L) {
                 successCallback(null as T)
                 return
             }
