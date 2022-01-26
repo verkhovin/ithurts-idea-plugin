@@ -1,22 +1,26 @@
 package dev.ithurts.plugin.ide.service.debt
 
+import dev.ithurts.plugin.ide.service.binding.Binding
+
 class StagedDebtService {
     var stagedDebt: StagedDebt? = null
 
     fun stageDebt(
         filePath: String,
         startLine: Int,
-        endLine: Int
+        endLine: Int,
+        bindingOptions: List<Binding>
     ) {
         val stagedDebt = stagedDebt
         if (stagedDebt != null) {
             this.stagedDebt = stagedDebt.copy(
                 filePath = filePath,
                 startLine = startLine,
-                endLine = endLine
+                endLine = endLine,
+                bindingOptions = bindingOptions
             )
         } else {
-            this.stagedDebt = StagedDebt(filePath, startLine, endLine)
+            this.stagedDebt = StagedDebt(filePath, startLine, endLine, bindingOptions)
         }
     }
 
@@ -39,6 +43,7 @@ data class StagedDebt(
     val filePath: String,
     val startLine: Int,
     val endLine: Int,
+    val bindingOptions: List<Binding>,
     var title: String? = null,
     var description: String? = null
 )

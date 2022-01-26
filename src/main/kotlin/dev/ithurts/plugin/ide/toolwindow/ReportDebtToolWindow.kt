@@ -7,6 +7,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.playback.commands.ActionCommand
 import com.intellij.ui.JBColor
@@ -17,7 +18,7 @@ import com.intellij.ui.content.ContentFactory
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.common.FileUtils
-import dev.ithurts.plugin.common.UiUtils
+import dev.ithurts.plugin.common.UiUtils.getReportDebtToolWindow
 import dev.ithurts.plugin.common.swing.MouseListenerWrapper
 import dev.ithurts.plugin.common.swing.SimpleDocumentListener
 import dev.ithurts.plugin.ide.service.debt.StagedDebt
@@ -41,6 +42,7 @@ class ReportDebtToolWindow(private val project: Project) {
     private val root = JPanel(MigLayout("fillx", "[]", "[][fill,grow][][]"))
     private val titleField = JBTextField()
     private val descriptionField = JBTextArea()
+    private val bindingField = ComboBox<String>()
     private val codeReferenceLabel = JLabel()
     private val reportButton = JButton("It hurts!")
 
@@ -65,6 +67,7 @@ class ReportDebtToolWindow(private val project: Project) {
 
         root.add(titleField, "grow, span")
         root.add(descriptionField, "grow, span")
+        root.add(bindingField, "grow, span")
         root.add(codeReferenceLabel, "align right, wrap")
         root.add(reportButton, "align right")
 
@@ -72,12 +75,18 @@ class ReportDebtToolWindow(private val project: Project) {
     }
 
     private fun setValues(stagedDebt: StagedDebt) {
-        val fileLinkText =
+        val selectedCodeLinkText =
             "${stagedDebt.filePath.substringAfterLast("/")}:${stagedDebt.startLine}" +
                     if (stagedDebt.startLine != stagedDebt.endLine) "-${stagedDebt.endLine}" else ""
-        codeReferenceLabel.text = fileLinkText
+
+        bindingField.removeAllItems()
+        stagedDebt.bindingOptions.forEach { binding -> bindingField.addItem(binding.title) }
+        bindingField.addItem("Source code $selectedCodeLinkText")
+
+        codeReferenceLabel.text = selectedCodeLinkText
         codeReferenceLabel.foreground = JBColor.BLUE
         codeReferenceLabel.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+
 
         titleField.emptyText.text = "Title: what's the problem?"
         descriptionField.emptyText.text = "Why it is bad? How it should be? Some options to fix it (optional)"
@@ -114,6 +123,12 @@ class ReportDebtToolWindow(private val project: Project) {
     private fun reportDebt(stagedDebt: StagedDebt) {
         val remoteUrl = propertiesComponent.getValue(Consts.PROJECT_REMOTE_PROPERTY_KEY) ?: return
 
+        val binding = if (bindingField.itemCount == 1) { //default only
+            null
+        } else {
+            stagedDebtService.stagedDebt!!.bindingOptions[bindingField.selectedIndex]
+        }
+
         ItHurtsClient.report(
             TechDebtReport(
                 titleField.text,
@@ -121,7 +136,8 @@ class ReportDebtToolWindow(private val project: Project) {
                 remoteUrl,
                 stagedDebt.filePath,
                 stagedDebt.startLine,
-                stagedDebt.endLine
+                stagedDebt.endLine,
+                binding
             ),
             {
                 ApplicationManager.getApplication().invokeLater {
@@ -129,7 +145,7 @@ class ReportDebtToolWindow(private val project: Project) {
                     propertiesComponent.setValue(Consts.SAVED_TITLE_PROPERTY_KEY, null)
                     propertiesComponent.setValue(Consts.SAVED_DESCRIPTION_PROPERTY_KEY, null)
                     stagedDebtService.reset()
-                    UiUtils.rerenderReportDebtToolWindow(project).hide()
+                    getReportDebtToolWindow(project).hide()
                 }
             },
             { error ->

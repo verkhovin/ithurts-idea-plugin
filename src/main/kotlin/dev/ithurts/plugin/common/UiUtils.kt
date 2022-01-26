@@ -1,16 +1,18 @@
 package dev.ithurts.plugin.common
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowManager
 import dev.ithurts.plugin.ide.toolwindow.ReportDebtToolWindow
 
 object UiUtils {
-    fun rerenderReportDebtToolWindow(project: Project): ToolWindow {
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Report Technical Debt")!!
+    fun rerenderReportDebtToolWindow(project: Project) {
+        val toolWindow = getReportDebtToolWindow(project)
         val contentManager = toolWindow.contentManager
         contentManager.removeAllContents(true)
-        contentManager.addContent(ReportDebtToolWindow(project).getContent())
-        return toolWindow
+        val reportDebtToolWindow = ReportDebtToolWindow(project)
+        contentManager.addContent(reportDebtToolWindow.getContent())
+        toolWindow.activate(null)
     }
+
+    fun getReportDebtToolWindow(project: Project) = ToolWindowManager.getInstance(project).getToolWindow("Report Technical Debt")!!
 }
