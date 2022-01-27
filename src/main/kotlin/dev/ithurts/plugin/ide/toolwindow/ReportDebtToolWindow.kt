@@ -23,7 +23,8 @@ import dev.ithurts.plugin.common.swing.MouseListenerWrapper
 import dev.ithurts.plugin.common.swing.SimpleDocumentListener
 import dev.ithurts.plugin.ide.service.debt.StagedDebt
 import dev.ithurts.plugin.ide.service.debt.StagedDebtService
-import dev.ithurts.plugin.model.TechDebtReport
+import dev.ithurts.plugin.client.model.TechDebtReport
+import dev.ithurts.plugin.ide.model.Binding
 import net.miginfocom.swing.MigLayout
 import java.awt.Cursor
 import java.awt.event.MouseEvent
@@ -42,8 +43,8 @@ class ReportDebtToolWindow(private val project: Project) {
     private val root = JPanel(MigLayout("fillx", "[]", "[][fill,grow][][]"))
     private val titleField = JBTextField()
     private val descriptionField = JBTextArea()
-    private val bindingField = ComboBox<String>()
-    private val codeReferenceLabel = JLabel()
+    private val bindingField = ComboBox<Binding>()
+    private val codeReferenceLabel = JLabel("Navigate to code")
     private val reportButton = JButton("It hurts!")
 
     private val fieldsChangedListener = object : SimpleDocumentListener {
@@ -63,7 +64,7 @@ class ReportDebtToolWindow(private val project: Project) {
         }
 
         setValues(stagedDebt)
-        addListeners(stagedDebt)
+        addListeners()
 
         root.add(titleField, "grow, span")
         root.add(descriptionField, "grow, span")
@@ -75,15 +76,9 @@ class ReportDebtToolWindow(private val project: Project) {
     }
 
     private fun setValues(stagedDebt: StagedDebt) {
-        val selectedCodeLinkText =
-            "${stagedDebt.filePath.substringAfterLast("/")}:${stagedDebt.startLine}" +
-                    if (stagedDebt.startLine != stagedDebt.endLine) "-${stagedDebt.endLine}" else ""
-
         bindingField.removeAllItems()
-        stagedDebt.bindingOptions.forEach { binding -> bindingField.addItem(binding.title) }
-        bindingField.addItem("Source code $selectedCodeLinkText")
+        stagedDebt.bindingOptions.forEach { binding -> bindingField.addItem(binding) }
 
-        codeReferenceLabel.text = selectedCodeLinkText
         codeReferenceLabel.foreground = JBColor.BLUE
         codeReferenceLabel.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
 
@@ -99,16 +94,17 @@ class ReportDebtToolWindow(private val project: Project) {
         }
     }
 
-    private fun addListeners(stagedDebt: StagedDebt) {
-        reportButton.addActionListener { reportDebt(stagedDebt) }
+    private fun addListeners() {
+        reportButton.addActionListener { reportDebt() }
         titleField.document.addDocumentListener(fieldsChangedListener)
         descriptionField.document.addDocumentListener(fieldsChangedListener)
         codeReferenceLabel.addMouseListener(object : MouseListenerWrapper {
             override fun mouseClicked(e: MouseEvent?) {
-                val file = FileUtils.virtualFileByPath(project, stagedDebt.filePath)
+                val binding = bindingField.selectedItem as Binding
+                val file = FileUtils.virtualFileByPath(project, binding.filePath)
                 ApplicationManager.getApplication().invokeLater {
                     FileEditorManager.getInstance(project).openTextEditor(
-                        OpenFileDescriptor(project, file, stagedDebt.startLine - 1, 0), true
+                        OpenFileDescriptor(project, file, binding.lines.first - 1, 0), true
                     )
                 }
             }
@@ -120,23 +116,16 @@ class ReportDebtToolWindow(private val project: Project) {
         return contentFactory.createContent(component, "", false)
     }
 
-    private fun reportDebt(stagedDebt: StagedDebt) {
+    private fun reportDebt() {
         val remoteUrl = propertiesComponent.getValue(Consts.PROJECT_REMOTE_PROPERTY_KEY) ?: return
 
-        val binding = if (bindingField.itemCount == 1) { //default only
-            null
-        } else {
-            stagedDebtService.stagedDebt!!.bindingOptions[bindingField.selectedIndex]
-        }
+        val binding = bindingField.selectedItem as Binding
 
         ItHurtsClient.report(
-            TechDebtReport(
+            TechDebtReport.from(
                 titleField.text,
                 descriptionField.text,
                 remoteUrl,
-                stagedDebt.filePath,
-                stagedDebt.startLine,
-                stagedDebt.endLine,
                 binding
             ),
             {

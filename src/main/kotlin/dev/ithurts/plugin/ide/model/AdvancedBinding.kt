@@ -1,18 +1,16 @@
-package dev.ithurts.plugin.ide.service.binding
+package dev.ithurts.plugin.ide.model
 
+import dev.ithurts.plugin.ide.service.binding.Language
 import dev.ithurts.plugin.ide.service.binding.Language.*
 
-data class Binding(
+class AdvancedBinding(
     val language: Language,
     val type: String,
     val name: String,
     val params: List<String>,
     val parent: String?
 ) {
-    val title: String
-        get()  {
-            return "$type ${formatParent()}$name${formatParams()}"
-        }
+    override fun toString(): String = "$type ${formatParent()}$name${formatParams()}"
 
     private fun formatParent(): String {
         parent ?: return ""

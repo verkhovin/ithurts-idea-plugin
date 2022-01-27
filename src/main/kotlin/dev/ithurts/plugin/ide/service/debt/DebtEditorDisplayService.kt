@@ -8,8 +8,8 @@ import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
-import dev.ithurts.plugin.model.DebtDto
-import dev.ithurts.plugin.model.DebtStatus
+import dev.ithurts.plugin.client.model.DebtDto
+import dev.ithurts.plugin.client.model.DebtStatus
 
 class DebtEditorDisplayService(private val project: Project) {
     fun renderDebtHighlighters() {

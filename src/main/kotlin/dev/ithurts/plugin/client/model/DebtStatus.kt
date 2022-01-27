@@ -1,4 +1,4 @@
-package dev.ithurts.plugin.model
+package dev.ithurts.plugin.client.model
 
 enum class DebtStatus(val title: String) {
     OPEN ("OPEN"),

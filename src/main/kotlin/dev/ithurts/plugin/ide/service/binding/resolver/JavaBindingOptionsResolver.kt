@@ -1,8 +1,13 @@
-package dev.ithurts.plugin.ide.service.binding
+package dev.ithurts.plugin.ide.service.binding.resolver
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import dev.ithurts.plugin.ide.model.AdvancedBinding
+import dev.ithurts.plugin.ide.model.Binding
+import dev.ithurts.plugin.ide.service.binding.CodeParsingUtils
 import dev.ithurts.plugin.ide.service.binding.CodeParsingUtils.findClosestParent
+import dev.ithurts.plugin.ide.service.binding.Language
+import dev.ithurts.plugin.ide.service.binding.ReflectionUtils
 import org.slf4j.LoggerFactory
 
 class JavaBindingOptionsResolver(private val project: Project) {
@@ -21,7 +26,7 @@ class JavaBindingOptionsResolver(private val project: Project) {
             val methodName = elem.children.first { it::class.simpleName == "PsiIdentifierImpl" }.text
             val paramTypes = resolveMethodParams(elem)
             val className = resolvePsiClassName(elem.findClosestParent("PsiClassImpl")!!)
-            return Binding(Language.JAVA, "Method", methodName, paramTypes, className)
+            return Binding("", 0 to 0, AdvancedBinding(Language.JAVA, "Method", methodName, paramTypes, className))
         } catch (e: Exception) {
             log.error("Failed to parse method", e)
             return null
@@ -29,7 +34,7 @@ class JavaBindingOptionsResolver(private val project: Project) {
     }
 
     private fun resolveMethodParams(elem: PsiElement): List<String> {
-         val psiClasses = elem.children.first { it::class.simpleName == "PsiParameterListImpl" }
+        val psiClasses = elem.children.first { it::class.simpleName == "PsiParameterListImpl" }
             .children.filter { it::class.simpleName == "PsiParameterImpl" }
             .map { param ->
                 param.children.first { it::class.simpleName == "PsiTypeElementImpl" }
@@ -37,8 +42,8 @@ class JavaBindingOptionsResolver(private val project: Project) {
                     .reference!!.resolve()!! //TODO handle nulls
             }
 
-       return psiClasses.map { psiClass ->
-           resolvePsiClassName(psiClass)
+        return psiClasses.map { psiClass ->
+            resolvePsiClassName(psiClass)
         }
     }
 

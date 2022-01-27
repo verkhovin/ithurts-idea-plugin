@@ -5,6 +5,8 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
+    <depends optional="true" config-file="dev.ithurts.idea-integration-org.jetbrains.kotlin.xml">org.jetbrains.kotlin</depends>
+    <depends optional="true" config-file="dev.ithurts.idea-integration-com.intellij.java.xml">com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable parentId="tools" instance="dev.ithurts.plugin.ide.settings.ItHurtsSettingsConfigurable"
@@ -16,9 +18,7 @@
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtBrowserService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.StagedDebtService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.BindingOptionsResolver"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.JavaBindingOptionsResolver"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.PythonBindingOptionsResolver"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.resolver.BindingOptionsResolver"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <toolWindow id="It Hurts" anchor="right"
                     factoryClass="dev.ithurts.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"

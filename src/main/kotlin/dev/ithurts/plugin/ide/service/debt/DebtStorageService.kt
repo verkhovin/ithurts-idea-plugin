@@ -1,7 +1,7 @@
 package dev.ithurts.plugin.ide.service.debt
 
 import com.intellij.openapi.project.Project
-import dev.ithurts.plugin.model.DebtDto
+import dev.ithurts.plugin.client.model.DebtDto
 
 class DebtStorageService(private val project: Project) {
     private var debts: Map<String, List<DebtDto>>? = null

@@ -12,7 +12,7 @@ import com.intellij.ui.jcef.JBCefJSQuery
 import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.FileUtils
-import dev.ithurts.plugin.model.DebtDto
+import dev.ithurts.plugin.client.model.DebtDto
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver

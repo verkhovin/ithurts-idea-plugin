@@ -3,8 +3,6 @@ package dev.ithurts.plugin.client
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -13,10 +11,10 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.ide.service.CredentialsService
-import dev.ithurts.plugin.model.DebtDto
-import dev.ithurts.plugin.model.Me
-import dev.ithurts.plugin.model.TechDebtReport
-import dev.ithurts.plugin.model.Tokens
+import dev.ithurts.plugin.client.model.DebtDto
+import dev.ithurts.plugin.client.model.Me
+import dev.ithurts.plugin.client.model.TechDebtReport
+import dev.ithurts.plugin.client.model.Tokens
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

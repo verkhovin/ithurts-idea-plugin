@@ -1,6 +1,6 @@
 package dev.ithurts.plugin.ide.service.debt
 
-import dev.ithurts.plugin.ide.service.binding.Binding
+import dev.ithurts.plugin.ide.model.Binding
 
 class StagedDebtService {
     var stagedDebt: StagedDebt? = null

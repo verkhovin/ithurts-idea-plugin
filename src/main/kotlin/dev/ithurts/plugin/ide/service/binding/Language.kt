@@ -7,10 +7,10 @@ enum class Language {
 
     companion object {
         fun from(language: Language): dev.ithurts.plugin.ide.service.binding.Language? {
-            return when(language.id){
+            return when(language.id.toUpperCase()){
                 "JAVA" -> JAVA
                 "KOTLIN" -> KOTLIN
-                "Python" -> PYTHON
+                "PYTHON" -> PYTHON
                 else -> null
             }
         }

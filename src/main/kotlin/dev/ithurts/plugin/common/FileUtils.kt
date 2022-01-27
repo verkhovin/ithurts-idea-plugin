@@ -10,12 +10,11 @@ import git4idea.repo.GitRepositoryManager
 
 object FileUtils {
     fun getRelativePath(
-        project: Project,
         editor: Editor
     ): String {
         val virtualFile = FileDocumentManager.getInstance().getFile(editor.document)
             ?: throw Exception("Failed to load file")
-        return getRelativePath(project, virtualFile)
+        return getRelativePath(editor.project!!, virtualFile)
     }
 
     fun getRelativePath(
@@ -37,5 +36,9 @@ object FileUtils {
     fun virtualFileByPath(project: Project, path: String) = getProjectRoot(project).findFileByRelativePath(path)
         ?: throw Exception("Failed to locate file")
 
+
+    fun Editor.line(offset: Int): Int {
+        return this.offsetToLogicalPosition(offset).line + 1
+    }
 
 }

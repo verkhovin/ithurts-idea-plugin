@@ -1,4 +1,4 @@
-package dev.ithurts.plugin.model
+package dev.ithurts.plugin.client.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
