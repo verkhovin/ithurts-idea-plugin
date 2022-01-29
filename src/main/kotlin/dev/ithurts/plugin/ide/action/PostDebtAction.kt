@@ -7,8 +7,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import dev.ithurts.plugin.common.FileUtils
-import dev.ithurts.plugin.common.FileUtils.line
 import dev.ithurts.plugin.common.UiUtils
 import dev.ithurts.plugin.ide.model.Binding
 import dev.ithurts.plugin.ide.service.binding.Language
@@ -34,16 +32,7 @@ class PostDebtAction : AnAction() {
         val bindingOptions: List<Binding> = project.service<BindingOptionsResolver>().getBindingOptions(editor, elem, language)
 
         val stagedDebtService = project.service<StagedDebtService>()
-        val (startLine, endLine) = if (editor.selectionModel.hasSelection()) {
-            editor.line(editor.selectionModel.selectionStart) to
-                    editor.line(editor.selectionModel.selectionEnd - 1)
-        } else {
-            editor.caretModel.logicalPosition.line + 1 to editor.caretModel.logicalPosition.line + 1
-        }
-        stagedDebtService.stageDebt(
-            FileUtils.getRelativePath(editor),
-            startLine, endLine, bindingOptions
-        )
+        stagedDebtService.stageDebt(bindingOptions)
 
         UiUtils.rerenderReportDebtToolWindow(project)
     }

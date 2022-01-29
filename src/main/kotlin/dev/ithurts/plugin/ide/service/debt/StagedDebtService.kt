@@ -6,21 +6,15 @@ class StagedDebtService {
     var stagedDebt: StagedDebt? = null
 
     fun stageDebt(
-        filePath: String,
-        startLine: Int,
-        endLine: Int,
         bindingOptions: List<Binding>
     ) {
         val stagedDebt = stagedDebt
         if (stagedDebt != null) {
             this.stagedDebt = stagedDebt.copy(
-                filePath = filePath,
-                startLine = startLine,
-                endLine = endLine,
                 bindingOptions = bindingOptions
             )
         } else {
-            this.stagedDebt = StagedDebt(filePath, startLine, endLine, bindingOptions)
+            this.stagedDebt = StagedDebt(bindingOptions)
         }
     }
 
@@ -40,9 +34,6 @@ class StagedDebtService {
 }
 
 data class StagedDebt(
-    val filePath: String,
-    val startLine: Int,
-    val endLine: Int,
     val bindingOptions: List<Binding>,
     var title: String? = null,
     var description: String? = null
