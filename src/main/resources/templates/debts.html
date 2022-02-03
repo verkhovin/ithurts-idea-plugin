@@ -19,8 +19,8 @@
 
         /*<![CDATA[*/
 
-        const focus = [[${focus}]];
-        if (focus !== -1) {
+        const focus = "[[${focus}]]";
+        if (focus !== "NULL") {
             window.addEventListener("load", function(){
                 location.href="#" + focus;
             });

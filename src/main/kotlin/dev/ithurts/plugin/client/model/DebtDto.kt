@@ -1,7 +1,7 @@
 package dev.ithurts.plugin.client.model
 
 data class DebtDto(
-    val id: Long,
+    val id: String,
     val title: String,
     val description: String,
     val status: DebtStatus,

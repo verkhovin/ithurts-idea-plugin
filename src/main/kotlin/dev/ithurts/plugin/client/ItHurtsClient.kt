@@ -64,7 +64,7 @@ object ItHurtsClient {
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
     }
 
-    fun vote(debtId: Long, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+    fun vote(debtId: String, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
         val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/vote").method("POST", EMPTY_REQUEST)
             .addHeader("Authorization", "Bearer $accessToken")
@@ -72,7 +72,7 @@ object ItHurtsClient {
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
     }
 
-    fun downVote(debtId: Long, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+    fun downVote(debtId: String, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
         val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/downVote").method("POST", EMPTY_REQUEST)
             .addHeader("Authorization", "Bearer $accessToken")

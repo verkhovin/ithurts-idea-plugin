@@ -49,11 +49,11 @@ class DebtBrowserService(private val project: Project) {
         render()
     }
 
-    private fun render(focusDebtId: Long = -1) {
+    private fun render(focusDebtId: String = "NULL") {
         browser.loadHTML(buildPage(currentDebts, currentLevel!!, focusDebtId))
     }
 
-    private fun buildPage(debts: List<DebtDto>, showLevel: ShowLevel, focusDebtId: Long): String {
+    private fun buildPage(debts: List<DebtDto>, showLevel: ShowLevel, focusDebtId: String): String {
         val templateEngine = TemplateEngine()
         val templateResolver = ClassLoaderTemplateResolver()
         templateResolver.setTemplateMode("HTML")
@@ -74,7 +74,7 @@ class DebtBrowserService(private val project: Project) {
         return stringWriter.toString()
     }
 
-    private fun navigateToCode(debtId: Long, debts: List<DebtDto>) {
+    private fun navigateToCode(debtId: String, debts: List<DebtDto>) {
         val debt = debts.find { it.id == debtId }!!
         val file = FileUtils.virtualFileByPath(project, debt.filePath)
         ApplicationManager.getApplication().invokeLater {
@@ -84,7 +84,7 @@ class DebtBrowserService(private val project: Project) {
         }
     }
 
-    private fun vote(debtId: Long, debts: List<DebtDto>) {
+    private fun vote(debtId: String, debts: List<DebtDto>) {
         val debt = debts.first { it.id == debtId }
         if (debt.voted) {
             ItHurtsClient.downVote(debt.id, {voteChangedCallback(debt)}, {})
@@ -118,10 +118,10 @@ class DebtBrowserService(private val project: Project) {
         context: Context,
         debts: List<DebtDto>,
         callbackName: String,
-        callback: (Long, List<DebtDto>) -> Unit
+        callback: (String, List<DebtDto>) -> Unit
     ) {
         addCallback(context, callbackName) { debtId ->
-            callback(debtId.toLong(), debts)
+            callback(debtId, debts)
         }
     }
 }
