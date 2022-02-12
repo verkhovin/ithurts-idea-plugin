@@ -24,6 +24,7 @@ import java.io.IOException
 
 object ItHurtsClient {
     private val mapper = jacksonObjectMapper()
+        .findAndRegisterModules()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val client = OkHttpClient.Builder().addInterceptor(
         ItHurtsTokenExpiredInterceptor(this::refreshTokens)

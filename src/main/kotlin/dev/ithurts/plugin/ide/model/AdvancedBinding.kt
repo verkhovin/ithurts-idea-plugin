@@ -1,7 +1,8 @@
 package dev.ithurts.plugin.ide.model
 
 import dev.ithurts.plugin.ide.service.binding.Language
-import dev.ithurts.plugin.ide.service.binding.Language.*
+import dev.ithurts.plugin.ide.service.binding.Language.JAVA
+import dev.ithurts.plugin.ide.service.binding.Language.KOTLIN
 
 class AdvancedBinding(
     val language: Language,
@@ -10,11 +11,19 @@ class AdvancedBinding(
     val params: List<String>,
     val parent: String?
 ) {
-    override fun toString(): String = "$type ${formatParent()}$name${formatParams()}"
+    override fun toString(): String = "$type ${formatParent()}${formatName()}${formatParams()}"
+
+    private fun formatName(): String {
+        return if (type.toUpperCase() == "CLASS") {
+            formatJvmClassName(name)
+        } else {
+            name
+        }
+    }
 
     private fun formatParent(): String {
         parent ?: return ""
-        return "${parent.substringAfterLast(".")}."
+        return "${formatJvmClassName(parent)}#"
     }
 
     private fun formatParams(): String {
@@ -26,4 +35,6 @@ class AdvancedBinding(
         return "(${params.joinToString(", ")})"
     }
 
+    private fun formatJvmClassName(name: String) = name.substringAfterLast(".")
 }
+

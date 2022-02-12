@@ -6,14 +6,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.common.FileUtils.line
-import dev.ithurts.plugin.ide.model.AdvancedBinding
 import dev.ithurts.plugin.ide.model.Binding
 import dev.ithurts.plugin.ide.service.binding.Language
 
 class BindingOptionsResolver (private val project: Project) {
     fun getBindingOptions(editor: Editor, element: PsiElement, language: Language?): List<Binding> {
         val advancedBindings: List<Binding> = when (language) {
-            Language.JAVA -> emptyList() //project.service<JavaBindingOptionsResolver>().getBindingOptions(element)
+            Language.JAVA -> project.service<JavaBindingOptionsResolver>().getBindingOptions(editor, element)
             Language.KOTLIN -> project.service<KotlinBindingOptionsResolver>().getBindingOptions(editor, element)
             Language.PYTHON -> emptyList() //project.service<PythonBindingOptionsResolver>().getBindingOptions(element)
             else -> emptyList()

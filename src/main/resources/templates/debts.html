@@ -5,6 +5,10 @@
             [( ${navigateQuery.inject("debtId")})]
         }
 
+        function show_web(debtId) {
+            [( ${showWebQuery.inject("debtId")})]
+        }
+
         function vote(debtId) {
             [( ${voteQuery.inject("debtId")})]
         }
@@ -33,6 +37,10 @@
         html {
             scroll-behavior: auto!important;
         }
+
+        pre {
+            white-space: pre-wrap;
+        }
     </style>
 
 
@@ -51,11 +59,12 @@
     <nav class="mt-2" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="javascript:showRepoDebts()">Root</a></li>
-            <li class="breadcrumb-item" th:if="${level.toString() != 'REPO'}"><a href="javascript:showFileDebts()"
-                                                                                 th:text="${debts[0].filePath.substring(debts[0].filePath.lastIndexOf('/') + 1).trim()}"></a>
+            <li class="breadcrumb-item" th:if="${level.toString() != 'REPO'}">
+                <a href="javascript:showFileDebts()"
+                   th:text="${debts[0].bindings[0].filePath.substring(debts[0].bindings[0].filePath.lastIndexOf('/') + 1).trim()}"></a>
             </li>
             <li class="breadcrumb-item" th:if="${level.toString() == 'LINE'}"><a
-                    th:text="'from line ' + ${debts[0].startLine}"></a></li>
+                    th:text="'from line ' + ${debts[0].bindings[0].startLine}"></a></li>
         </ol>
     </nav>
 
@@ -69,7 +78,8 @@
                        th:classappend="${debt.voted ? 'bi-caret-up-fill' : 'bi-caret-up'}"
                        th:title="${debt.voted? 'Downvote' : 'Vote'}"
                        th:onClick="vote(this.getAttribute('data-id'))"></i>
-                    <span th:id="${debt.id}" th:text="${debt.title}" th:classappend="${!dark ? 'text-black' : '' }"></span></h5>
+                    <span th:id="${debt.id}" th:text="${debt.title}" th:classappend="${!dark ? 'text-black' : '' }"></span>
+                </h5>
                 <h6 th:if="${!debt.status.toString().equals('OPEN')}">
                     <span class="badge bg-dark">PROBABLY RESOLVED</span>
                 </h6>
@@ -77,16 +87,17 @@
                     <span class="badge bg-dark">OPEN</span>
                     <span th:id="${debt.id}+'-votes'" class="text-muted ps-2 pe-1" th:text="${debt.votes}"></span><span class="text-muted">people were hurt by this</span>
                 </h6>
-                <p class="text-muted">
-                    <span class="text-muted"
-                       th:text="${debt.sourceLink.text}"></span>
+                <p th:classappend="${!dark ?'text-dark' : '' }">
+                    Cost: <b th:id="${debt.id}+'-cost'" th:text="${debt.cost}"></b>
                 </p>
                 <pre th:text="${debt.description}" class="card-text" th:classappend="${dark ?'text-white' : '' }"></pre>
                 <a class="card-link" th:href="'javascript:navigate_to_code(\'' + ${debt.id} + '\')'">Navigate to
                     code</a>
+                <a class="card-link" th:href="'javascript:show_web(\'' + ${debt.id} + '\')'">Web version <i class="bi bi-box-arrow-up-right"></i></a>
             </div>
         </div>
     </div>
+    <!-- TODO Cost on white theme    -->
 </div>
 </body>
 </html>

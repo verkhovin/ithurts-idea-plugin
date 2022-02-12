@@ -1,54 +1,59 @@
 package dev.ithurts.plugin.ide.service.binding.resolver
 
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiMethod
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.suggested.endOffset
+import com.intellij.refactoring.suggested.startOffset
+import dev.ithurts.plugin.common.FileUtils
+import dev.ithurts.plugin.common.FileUtils.line
 import dev.ithurts.plugin.ide.model.AdvancedBinding
 import dev.ithurts.plugin.ide.model.Binding
 import dev.ithurts.plugin.ide.service.binding.CodeParsingUtils
-import dev.ithurts.plugin.ide.service.binding.CodeParsingUtils.findClosestParent
 import dev.ithurts.plugin.ide.service.binding.Language
-import dev.ithurts.plugin.ide.service.binding.ReflectionUtils
 import org.slf4j.LoggerFactory
 
 class JavaBindingOptionsResolver(private val project: Project) {
-    fun getBindingOptions(element: PsiElement): List<Binding> {
+    fun getBindingOptions(editor: Editor, element: PsiElement): List<Binding> {
         val bindingOptions = mutableListOf<Binding>()
         CodeParsingUtils.iterateTreeUp(element) { elem ->
-            when (elem::class.simpleName) {
-                "PsiMethodImpl" -> parseMethod(elem)?.let { bindingOptions.add(it) }
+            when (elem) {
+                is PsiMethod -> parseMethod(elem, editor)?.let { bindingOptions.add(it) }
+                is PsiClass -> parseClass(elem, editor)?.let { bindingOptions.add(it) }
             }
         }
         return bindingOptions
     }
 
-    private fun parseMethod(elem: PsiElement): Binding? {
+    private fun parseMethod(methodElem: PsiMethod, editor: Editor): Binding? {
         try {
-            val methodName = elem.children.first { it::class.simpleName == "PsiIdentifierImpl" }.text
-            val paramTypes = resolveMethodParams(elem)
-            val className = resolvePsiClassName(elem.findClosestParent("PsiClassImpl")!!)
-            return Binding("", 0 to 0, AdvancedBinding(Language.JAVA, "Method", methodName, paramTypes, className))
+            val methodName = methodElem.name
+            val paramTypes: List<String> = methodElem.hierarchicalMethodSignature.parameterTypes.map {
+                it.canonicalText
+            }
+            val className = PsiTreeUtil.getParentOfType(methodElem, PsiClass::class.java)?.qualifiedName
+            return Binding(
+                FileUtils.getRelativePath(editor),
+                editor.line(methodElem.startOffset) to editor.line(methodElem.endOffset),
+                AdvancedBinding(Language.JAVA, "Method", methodName, paramTypes, className)
+            )
         } catch (e: Exception) {
             log.error("Failed to parse method", e)
             return null
         }
     }
 
-    private fun resolveMethodParams(elem: PsiElement): List<String> {
-        val psiClasses = elem.children.first { it::class.simpleName == "PsiParameterListImpl" }
-            .children.filter { it::class.simpleName == "PsiParameterImpl" }
-            .map { param ->
-                param.children.first { it::class.simpleName == "PsiTypeElementImpl" }
-                    .children.first { typeElem -> typeElem::class.simpleName == "PsiJavaCodeReferenceElementImpl" }
-                    .reference!!.resolve()!! //TODO handle nulls
-            }
-
-        return psiClasses.map { psiClass ->
-            resolvePsiClassName(psiClass)
-        }
+    private fun parseClass(classElem: PsiClass, editor: Editor): Binding? {
+        val className = classElem.qualifiedName ?: return null
+        return Binding(
+            FileUtils.getRelativePath(editor),
+            editor.line(classElem.startOffset) to editor.line(classElem.endOffset),
+            AdvancedBinding(Language.JAVA, "Class", className, emptyList(), null)
+        )
     }
-
-    private fun resolvePsiClassName(psiClass: PsiElement): String =
-        ReflectionUtils.invokeMethod(psiClass, "getQualifiedName")
 
     companion object {
         val log = LoggerFactory.getLogger(JavaBindingOptionsResolver::class.java)

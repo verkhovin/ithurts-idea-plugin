@@ -7,7 +7,7 @@ class DebtStorageService(private val project: Project) {
     private var debts: Map<String, List<DebtDto>>? = null
 
     fun indexDebts(debts: Set<DebtDto>) {
-        this.debts = debts.groupBy { it.filePath }
+        this.debts = debts.groupBy { it.bindings[0].filePath }
     }
 
     fun getDebts(): Map<String, List<DebtDto>> {
@@ -16,5 +16,5 @@ class DebtStorageService(private val project: Project) {
 
     fun getDebts(filePath: String) = debts?.get(filePath) ?: emptyList()
 
-    fun getDebts(filePath: String, lineNumber: Int) = getDebts(filePath).filter { it.startLine == lineNumber }
+    fun getDebts(filePath: String, lineNumber: Int) = getDebts(filePath).filter { it.bindings[0].startLine == lineNumber }
 }
