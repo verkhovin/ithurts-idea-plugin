@@ -1,6 +1,9 @@
 package dev.ithurts.plugin.ide.toolwindow
 
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
@@ -138,10 +141,16 @@ class ReportDebtToolWindow(private val project: Project) {
                 }
             },
             { error ->
-                Messages.showErrorDialog(
-                    project, "Something went wrong. Please, try again later. Reason: ${error.message}",
-                    "Debt Report Failed"
-                )
+                ApplicationManager.getApplication().invokeLater {
+                    Notifications.Bus.notify(
+                        Notification(
+                            "",
+                            "Failed to report Tech Debt to It Hurts",
+                            "Error: ${error.javaClass.simpleName} ${error.message}",
+                            NotificationType.ERROR
+                        )
+                    )
+                }
             }
         )
     }

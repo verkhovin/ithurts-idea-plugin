@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.1.0]
+### Added
+- Code aware binding
+
 ## [0.0.7]
 ### Added
 - Debt voting support

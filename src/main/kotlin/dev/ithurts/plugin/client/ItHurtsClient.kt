@@ -20,6 +20,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 object ItHurtsClient {
@@ -31,6 +32,8 @@ object ItHurtsClient {
     ).addInterceptor {
         it.proceed(it.request().newBuilder().addHeader("Accept", "application/json").build())
     }.build()
+
+    private val log = LoggerFactory.getLogger(ItHurtsClient::class.java)
 
     fun getTokens(
         authCode: String,
@@ -92,7 +95,9 @@ object ItHurtsClient {
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}, ::handleError)
+        executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}) {
+            log.error("Failed to get debts for repo $remoteUrl", it.toString())
+        }
     }
 
     private fun refreshTokens() {
