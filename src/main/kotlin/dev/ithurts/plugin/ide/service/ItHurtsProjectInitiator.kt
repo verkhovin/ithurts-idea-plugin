@@ -22,16 +22,20 @@ class ItHurtsProjectInitiator : StartupActivity {
         val properties = PropertiesComponent.getInstance(project)
         properties.setValue(PROJECT_REMOTE_PROPERTY_KEY, remoteUrl)
 
-        val debtStorageService = project.service<DebtStorageService>()
-        ItHurtsClient.getDebtsForRepo(
-            remoteUrl,
-        ) {
-            debtStorageService.indexDebts(it)
-            registerFileOpenedEventHandler(project)
-            ApplicationManager.getApplication().invokeLater {
-                project.service<DebtEditorDisplayService>().renderDebtHighlighters()
+        val credentialsService = service<CredentialsService>()
+
+        if (credentialsService.hasCredentials()) {
+            val debtStorageService = project.service<DebtStorageService>()
+            ItHurtsClient.getDebtsForRepo(
+                remoteUrl,
+            ) {
+                debtStorageService.indexDebts(it)
+                registerFileOpenedEventHandler(project)
+                ApplicationManager.getApplication().invokeLater {
+                    project.service<DebtEditorDisplayService>().renderDebtHighlighters()
+                }
+                ItHurtsInitiatorState.isInitialized = true
             }
-            ItHurtsInitiatorState.isInitialized = true
         }
 
     }

@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.resolver.JavaBindingOptionsResolver"/>
+    </extensions>
+</idea-plugin>

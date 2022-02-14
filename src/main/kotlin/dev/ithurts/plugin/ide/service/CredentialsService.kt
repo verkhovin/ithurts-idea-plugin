@@ -4,7 +4,7 @@ import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
 import com.intellij.ide.passwordSafe.PasswordSafe
-import dev.ithurts.plugin.model.Tokens
+import dev.ithurts.plugin.client.model.Tokens
 
 
 class CredentialsService {

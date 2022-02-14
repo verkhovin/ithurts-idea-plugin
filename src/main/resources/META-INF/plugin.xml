@@ -5,6 +5,8 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
+    <depends optional="true" config-file="dev.ithurts.idea-integration-org.jetbrains.kotlin.xml">org.jetbrains.kotlin</depends>
+    <depends optional="true" config-file="dev.ithurts.idea-integration-com.intellij.java.xml">com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable parentId="tools" instance="dev.ithurts.plugin.ide.settings.ItHurtsSettingsConfigurable"
@@ -16,6 +18,7 @@
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtBrowserService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.StagedDebtService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.resolver.BindingOptionsResolver"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <toolWindow id="It Hurts" anchor="right"
                     factoryClass="dev.ithurts.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"
@@ -28,8 +31,10 @@
     <actions>
         <action id="ItHurtsActions.PostDebtAction" class="dev.ithurts.plugin.ide.action.PostDebtAction"
                 text="Report the Debt"
-                description="Report as a technical debt to ItHurts">
-            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+                description="Report a technical debt to ItHurts"
+                icon="ItHurtsIcons.DEFAULT_ICON"
+        >
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
         <action id="ItHurtsActions.ShowFileDebtsAction" class="dev.ithurts.plugin.ide.action.ShowFileDebtsAction"
                 text="Show File Technical Debts "

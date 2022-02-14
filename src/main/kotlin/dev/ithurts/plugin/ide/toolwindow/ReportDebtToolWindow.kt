@@ -1,12 +1,16 @@
 package dev.ithurts.plugin.ide.toolwindow
 
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.playback.commands.ActionCommand
 import com.intellij.ui.JBColor
@@ -17,12 +21,13 @@ import com.intellij.ui.content.ContentFactory
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.common.FileUtils
-import dev.ithurts.plugin.common.UiUtils
+import dev.ithurts.plugin.common.UiUtils.getReportDebtToolWindow
 import dev.ithurts.plugin.common.swing.MouseListenerWrapper
 import dev.ithurts.plugin.common.swing.SimpleDocumentListener
 import dev.ithurts.plugin.ide.service.debt.StagedDebt
 import dev.ithurts.plugin.ide.service.debt.StagedDebtService
-import dev.ithurts.plugin.model.TechDebtReport
+import dev.ithurts.plugin.client.model.TechDebtReport
+import dev.ithurts.plugin.ide.model.Binding
 import net.miginfocom.swing.MigLayout
 import java.awt.Cursor
 import java.awt.event.MouseEvent
@@ -41,7 +46,8 @@ class ReportDebtToolWindow(private val project: Project) {
     private val root = JPanel(MigLayout("fillx", "[]", "[][fill,grow][][]"))
     private val titleField = JBTextField()
     private val descriptionField = JBTextArea()
-    private val codeReferenceLabel = JLabel()
+    private val bindingField = ComboBox<Binding>()
+    private val codeReferenceLabel = JLabel("Navigate to code")
     private val reportButton = JButton("It hurts!")
 
     private val fieldsChangedListener = object : SimpleDocumentListener {
@@ -61,10 +67,11 @@ class ReportDebtToolWindow(private val project: Project) {
         }
 
         setValues(stagedDebt)
-        addListeners(stagedDebt)
+        addListeners()
 
         root.add(titleField, "grow, span")
         root.add(descriptionField, "grow, span")
+        root.add(bindingField, "grow, span")
         root.add(codeReferenceLabel, "align right, wrap")
         root.add(reportButton, "align right")
 
@@ -72,12 +79,12 @@ class ReportDebtToolWindow(private val project: Project) {
     }
 
     private fun setValues(stagedDebt: StagedDebt) {
-        val fileLinkText =
-            "${stagedDebt.filePath.substringAfterLast("/")}:${stagedDebt.startLine}" +
-                    if (stagedDebt.startLine != stagedDebt.endLine) "-${stagedDebt.endLine}" else ""
-        codeReferenceLabel.text = fileLinkText
+        bindingField.removeAllItems()
+        stagedDebt.bindingOptions.forEach { binding -> bindingField.addItem(binding) }
+
         codeReferenceLabel.foreground = JBColor.BLUE
         codeReferenceLabel.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+
 
         titleField.emptyText.text = "Title: what's the problem?"
         descriptionField.emptyText.text = "Why it is bad? How it should be? Some options to fix it (optional)"
@@ -90,16 +97,17 @@ class ReportDebtToolWindow(private val project: Project) {
         }
     }
 
-    private fun addListeners(stagedDebt: StagedDebt) {
-        reportButton.addActionListener { reportDebt(stagedDebt) }
+    private fun addListeners() {
+        reportButton.addActionListener { reportDebt() }
         titleField.document.addDocumentListener(fieldsChangedListener)
         descriptionField.document.addDocumentListener(fieldsChangedListener)
         codeReferenceLabel.addMouseListener(object : MouseListenerWrapper {
             override fun mouseClicked(e: MouseEvent?) {
-                val file = FileUtils.virtualFileByPath(project, stagedDebt.filePath)
+                val binding = bindingField.selectedItem as Binding
+                val file = FileUtils.virtualFileByPath(project, binding.filePath)
                 ApplicationManager.getApplication().invokeLater {
                     FileEditorManager.getInstance(project).openTextEditor(
-                        OpenFileDescriptor(project, file, stagedDebt.startLine - 1, 0), true
+                        OpenFileDescriptor(project, file, binding.lines.first - 1, 0), true
                     )
                 }
             }
@@ -111,17 +119,17 @@ class ReportDebtToolWindow(private val project: Project) {
         return contentFactory.createContent(component, "", false)
     }
 
-    private fun reportDebt(stagedDebt: StagedDebt) {
+    private fun reportDebt() {
         val remoteUrl = propertiesComponent.getValue(Consts.PROJECT_REMOTE_PROPERTY_KEY) ?: return
 
+        val binding = bindingField.selectedItem as Binding
+
         ItHurtsClient.report(
-            TechDebtReport(
+            TechDebtReport.from(
                 titleField.text,
                 descriptionField.text,
                 remoteUrl,
-                stagedDebt.filePath,
-                stagedDebt.startLine,
-                stagedDebt.endLine
+                binding
             ),
             {
                 ApplicationManager.getApplication().invokeLater {
@@ -129,14 +137,20 @@ class ReportDebtToolWindow(private val project: Project) {
                     propertiesComponent.setValue(Consts.SAVED_TITLE_PROPERTY_KEY, null)
                     propertiesComponent.setValue(Consts.SAVED_DESCRIPTION_PROPERTY_KEY, null)
                     stagedDebtService.reset()
-                    UiUtils.rerenderReportDebtToolWindow(project).hide()
+                    getReportDebtToolWindow(project).hide()
                 }
             },
             { error ->
-                Messages.showErrorDialog(
-                    project, "Something went wrong. Please, try again later. Reason: ${error.message}",
-                    "Debt Report Failed"
-                )
+                ApplicationManager.getApplication().invokeLater {
+                    Notifications.Bus.notify(
+                        Notification(
+                            "",
+                            "Failed to report Tech Debt to It Hurts",
+                            "Error: ${error.javaClass.simpleName} ${error.message}",
+                            NotificationType.ERROR
+                        )
+                    )
+                }
             }
         )
     }

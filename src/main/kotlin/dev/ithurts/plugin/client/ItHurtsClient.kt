@@ -3,8 +3,6 @@ package dev.ithurts.plugin.client
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -13,25 +11,29 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.ide.service.CredentialsService
-import dev.ithurts.plugin.model.DebtDto
-import dev.ithurts.plugin.model.Me
-import dev.ithurts.plugin.model.TechDebtReport
-import dev.ithurts.plugin.model.Tokens
+import dev.ithurts.plugin.client.model.DebtDto
+import dev.ithurts.plugin.client.model.Me
+import dev.ithurts.plugin.client.model.TechDebtReport
+import dev.ithurts.plugin.client.model.Tokens
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 object ItHurtsClient {
     private val mapper = jacksonObjectMapper()
+        .findAndRegisterModules()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val client = OkHttpClient.Builder().addInterceptor(
         ItHurtsTokenExpiredInterceptor(this::refreshTokens)
     ).addInterceptor {
         it.proceed(it.request().newBuilder().addHeader("Accept", "application/json").build())
     }.build()
+
+    private val log = LoggerFactory.getLogger(ItHurtsClient::class.java)
 
     fun getTokens(
         authCode: String,
@@ -66,7 +68,7 @@ object ItHurtsClient {
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
     }
 
-    fun vote(debtId: Long, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+    fun vote(debtId: String, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
         val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/vote").method("POST", EMPTY_REQUEST)
             .addHeader("Authorization", "Bearer $accessToken")
@@ -74,7 +76,7 @@ object ItHurtsClient {
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
     }
 
-    fun downVote(debtId: Long, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+    fun downVote(debtId: String, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
         val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/downVote").method("POST", EMPTY_REQUEST)
             .addHeader("Authorization", "Bearer $accessToken")
@@ -93,7 +95,9 @@ object ItHurtsClient {
         val request = Request.Builder().url(url)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
-        executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}, ::handleError)
+        executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}) {
+            log.error("Failed to get debts for repo $remoteUrl", it.toString())
+        }
     }
 
     private fun refreshTokens() {
