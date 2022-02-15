@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.1.1]
+### Added
+- Server selection (for On-Premise usage)
+
 ## [0.1.0]
 ### Added
 - Code aware binding

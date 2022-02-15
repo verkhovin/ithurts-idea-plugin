@@ -124,7 +124,7 @@ class ReportDebtToolWindow(private val project: Project) {
 
         val binding = bindingField.selectedItem as Binding
 
-        ItHurtsClient.report(
+        service<ItHurtsClient>().report(
             TechDebtReport.from(
                 titleField.text,
                 descriptionField.text,

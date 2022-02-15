@@ -26,7 +26,7 @@ class ItHurtsProjectInitiator : StartupActivity {
 
         if (credentialsService.hasCredentials()) {
             val debtStorageService = project.service<DebtStorageService>()
-            ItHurtsClient.getDebtsForRepo(
+            service<ItHurtsClient>().getDebtsForRepo(
                 remoteUrl,
             ) {
                 debtStorageService.indexDebts(it)

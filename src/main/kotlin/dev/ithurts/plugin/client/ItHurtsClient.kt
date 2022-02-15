@@ -23,7 +23,7 @@ import okhttp3.internal.EMPTY_REQUEST
 import org.slf4j.LoggerFactory
 import java.io.IOException
 
-object ItHurtsClient {
+class ItHurtsClient {
     private val mapper = jacksonObjectMapper()
         .findAndRegisterModules()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -36,12 +36,13 @@ object ItHurtsClient {
     private val log = LoggerFactory.getLogger(ItHurtsClient::class.java)
 
     fun getTokens(
+        host: String,
         authCode: String,
         codeVerifier: String,
         callback: (Tokens) -> Unit,
         errorCallback: (ItHurtsError) -> Unit
     ) {
-        val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
+        val url = (host + Consts.accessTokenUrl).toHttpUrl().newBuilder()
             .addQueryParameter("authorizationCode", authCode)
             .addQueryParameter("codeVerifier", codeVerifier)
             .addQueryParameter("grantType", "authorization_code")
@@ -52,7 +53,7 @@ object ItHurtsClient {
 
     fun me(callback: (Me) -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
-        val request = Request.Builder().url(Consts.meUrl)
+        val request = Request.Builder().url(withHost(Consts.meUrl))
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
         executeAsync(request, callback, errorCallback)
@@ -62,7 +63,7 @@ object ItHurtsClient {
         val accessToken = service<CredentialsService>().getAccessToken()
         val body = mapper.writeValueAsString(techDebtReport)
             .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val request = Request.Builder().url(Consts.debtsUrl).method("POST", body)
+        val request = Request.Builder().url(withHost(Consts.debtsUrl)).method("POST", body)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
@@ -70,7 +71,7 @@ object ItHurtsClient {
 
     fun vote(debtId: String, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
-        val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/vote").method("POST", EMPTY_REQUEST)
+        val request = Request.Builder().url("${withHost(Consts.debtsUrl)}/$debtId/vote").method("POST", EMPTY_REQUEST)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
@@ -78,7 +79,7 @@ object ItHurtsClient {
 
     fun downVote(debtId: String, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
         val accessToken = service<CredentialsService>().getAccessToken()
-        val request = Request.Builder().url("${Consts.debtsUrl}/$debtId/downVote").method("POST", EMPTY_REQUEST)
+        val request = Request.Builder().url("${withHost(Consts.debtsUrl)}/$debtId/downVote").method("POST", EMPTY_REQUEST)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
         executeAsync(request, { _: Any? -> callback() }, errorCallback)
@@ -89,7 +90,7 @@ object ItHurtsClient {
         callback: (debts: Set<DebtDto>) -> Unit,
     ) {
         val accessToken = service<CredentialsService>().getAccessToken()
-        val url = Consts.debtsUrl.toHttpUrl().newBuilder()
+        val url = withHost(Consts.debtsUrl).toHttpUrl().newBuilder()
             .addQueryParameter("remoteUrl", remoteUrl)
             .build()
         val request = Request.Builder().url(url)
@@ -103,7 +104,7 @@ object ItHurtsClient {
     private fun refreshTokens() {
         val credentialsService = service<CredentialsService>()
         val refreshToken = credentialsService.getRefreshToken()
-        val url = Consts.accessTokenUrl.toHttpUrl().newBuilder()
+        val url = withHost(Consts.accessTokenUrl).toHttpUrl().newBuilder()
             .addQueryParameter("grantType", "refresh_token")
             .addQueryParameter("refreshToken", refreshToken)
             .build()
@@ -115,10 +116,12 @@ object ItHurtsClient {
         )
         handleResponse(
             call.execute(),
-            { tokens: Tokens -> credentialsService.saveTokens(tokens) },
+            { tokens: Tokens -> credentialsService.updateTokens(tokens) },
             { credentialsService.clearTokens() }
         )
     }
+
+    private fun withHost(url: String): String = service<CredentialsService>().getHost() + url
 
     private inline fun <reified T> executeAsync(
         request: Request,

@@ -8,7 +8,13 @@ import dev.ithurts.plugin.client.model.Tokens
 
 
 class CredentialsService {
-    fun saveTokens(tokens: Tokens) {
+    fun saveCredentials(tokens: Tokens, host: String) {
+        saveToken(tokens.accessToken, "AccessToken")
+        saveToken(tokens.refreshToken, "RefreshToken")
+        saveToken(host, "Host")
+    }
+
+    fun updateTokens(tokens: Tokens) {
         saveToken(tokens.accessToken, "AccessToken")
         saveToken(tokens.refreshToken, "RefreshToken")
     }
@@ -23,9 +29,12 @@ class CredentialsService {
 
     fun getRefreshToken() = PasswordSafe.instance.getPassword(createCredentialAttributes("RefreshToken"))
 
+    fun getHost() = PasswordSafe.instance.getPassword(createCredentialAttributes("Host"))
+
     fun clearTokens() {
         saveToken(null, "AccessToken")
         saveToken(null, "RefreshToken")
+        saveToken(null, "Host")
     }
 
     private fun saveToken(token: String?, name: String) {

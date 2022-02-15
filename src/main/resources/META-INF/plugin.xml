@@ -13,6 +13,7 @@
                                  id="dev.ithurts.plugin.ide.settings.ItHurtsSettingsConfigurable"
                                  displayName="It Hurts"/>
         <applicationService serviceImplementation="dev.ithurts.plugin.ide.service.CredentialsService"/>
+        <applicationService serviceImplementation="dev.ithurts.plugin.client.ItHurtsClient"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtStorageService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtBrowserService"/>

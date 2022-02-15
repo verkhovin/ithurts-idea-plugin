@@ -15,7 +15,7 @@ class FetchDebtsAction : AnAction() {
         val project = e.project ?: return
         val debtStorageService = project.service<DebtStorageService>()
 
-        ItHurtsClient.getDebtsForRepo(
+        service<ItHurtsClient>().getDebtsForRepo(
             RepoUtils.getRemote(project),
         ) {
             debtStorageService.indexDebts(it)

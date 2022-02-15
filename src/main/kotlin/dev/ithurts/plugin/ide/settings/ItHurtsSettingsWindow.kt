@@ -5,6 +5,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBTextField
+import com.intellij.ui.layout.panel
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.ide.service.CredentialsService
@@ -22,10 +23,33 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 
 class ItHurtsSettingsWindow {
-    val content = JPanel()
+    private var generateCodeUrl: String? = null
+    private var codeVerifier: String? = null
+    private var host: String = "https://ithurts.dev"
 
-    private val initialPanel = JPanel(MigLayout("fillx"))
-    private val connectButton: JButton = JButton("Connect to It Hurts")
+    val content = JPanel()
+    private val  hostField: JBTextField = JBTextField(host)
+
+    private var initialPanel =  panel {
+        row {
+            button("Connect to It Hurts") {
+                host = hostField.text
+                navigateToAuthCode()
+                show(authCodePanel)
+            }
+        }
+        row {
+            label("Your web browser will be navigated to It Hurts page, where you'll get an auth code")
+        }
+        titledRow("Advanced") {
+            row {
+                cell {
+                    label("Host")
+                    component(hostField)
+                }
+            }
+        }
+    }
 
     private val authCodePanel = JPanel(MigLayout("fillx"))
     private val authCodeField: JBTextField = JBTextField()
@@ -39,32 +63,32 @@ class ItHurtsSettingsWindow {
 
     private val credentialsService = service<CredentialsService>()
 
-    private var generateCodeUrl: String? = null
-    private var codeVerifier: String? = null
-
 
     init {
-        connectButton.addActionListener {
-            navigateToAuthCode()
-            show(authCodePanel)
-        }
-        initialPanel.add(connectButton, "align center, wrap")
-        initialPanel.add(
-            JLabel("Your web browser will be navigated to It Hurts page, where you'll get an auth code"),
-            "align center, wrap"
-        )
+//        initialPanel.add(connectButton, "align center, wrap")
+//        initialPanel.add(
+//            JLabel("Your web browser will be navigated to It Hurts page, where you'll get an auth code"),
+//            "align center, wrap"
+//        )
+////        initialPanel.add(SeparatorWithText().apply { caption = "Advanced" }, "wrap")
+//        initialPanel.add(JLabel("Host"))
+//        hostField.emptyText.text = "https://ithurts.dev"
+//        hostField.text = "https://ithurts.dev"
+//        initialPanel.add(hostField, "span, grow")
+
 
         authCodeField.emptyText.text = "Code"
         copyUrlButton.addActionListener {
             Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(generateCodeUrl), null)
         }
+
         submitAuthCodeButton.addActionListener { submitAuthCode() }
         authCodePanel.add(authCodeField, "grow")
         authCodePanel.add(submitAuthCodeButton, "align center, wrap")
         authCodePanel.add(copyUrlButton, "align center, wrap")
         authCodePanel.add(generateCodeAgainButton, "align center")
 
-        generateCodeAgainButton.addActionListener { navigateToAuthCode() }
+        generateCodeAgainButton.addActionListener { logout() }
         logoutButton.addActionListener { logout() }
         connectedPanel.add(accountInfoLabel, "align center, wrap")
         connectedPanel.add(logoutButton, "align center, wrap")
@@ -87,8 +111,8 @@ class ItHurtsSettingsWindow {
         show(connectedPanel)
         accountInfoLabel.text = "Loading..."
         val authCode = this.authCodeField.text
-        ItHurtsClient.getTokens(authCode, this.codeVerifier!!, {
-            credentialsService.saveTokens(it)
+        service<ItHurtsClient>().getTokens(host, authCode, this.codeVerifier!!, {
+            credentialsService.saveCredentials(it, host)
             showAccountInfo()
             initProjectData()
         }) {
@@ -106,7 +130,7 @@ class ItHurtsSettingsWindow {
     }
 
     private fun showAccountInfo() {
-        ItHurtsClient.me(
+        service<ItHurtsClient>().me(
             {
                 accountInfoLabel.text = "Logged as ${it.name}"
             }, { show(initialPanel) })
@@ -136,7 +160,7 @@ class ItHurtsSettingsWindow {
         val codeChallenge = Base64.getUrlEncoder().encodeToString(
             DigestUtils.sha256Hex(codeVerifier.toByteArray(StandardCharsets.UTF_8)).toByteArray()
         )
-        return Consts.authUrl.toHttpUrl().newBuilder()
+        return (host + Consts.authUrl).toHttpUrl().newBuilder()
             .addQueryParameter("code_challenge", codeChallenge)
             .build().toString()
     }

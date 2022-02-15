@@ -14,7 +14,7 @@ import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.client.model.DebtDto
-import dev.ithurts.plugin.common.Consts
+import dev.ithurts.plugin.ide.service.CredentialsService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
@@ -88,15 +88,16 @@ class DebtBrowserService(private val project: Project) {
     }
 
     private fun showDebtInWeb(debtId: String, debts: List<DebtDto>) {
-        BrowserUtil.browse("${Consts.siteUrl}/debts/$debtId")
+        BrowserUtil.browse("${service<CredentialsService>().getHost()}/debts/$debtId")
     }
 
     private fun vote(debtId: String, debts: List<DebtDto>) {
         val debt = debts.first { it.id == debtId }
+        val client = service<ItHurtsClient>()
         if (debt.voted) {
-            ItHurtsClient.downVote(debt.id, {voteChangedCallback(debt)}, {})
+            client.downVote(debt.id, {voteChangedCallback(debt)}, {})
         } else {
-            ItHurtsClient.vote(debt.id, {voteChangedCallback(debt)}, {})
+            client.vote(debt.id, {voteChangedCallback(debt)}, {})
         }
 
     }
