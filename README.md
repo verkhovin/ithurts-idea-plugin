@@ -1,8 +1,4 @@
-# It Hurts Idea Plugin
-
-![Build](https://github.com/verkhovin/non-latin-layout-shortcuts/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/dev.ithurts.plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/dev.ithurts.plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/dev.ithurts.plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/dev.ithurts.plugin/PLUGIN_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/dev.ithurts.idea-integration)](https://plugins.jetbrains.com/plugin/18380-it-hurts-integration)
 
 <!-- Plugin description -->
 This plugin integrates It Hurts with your IDE. 
