@@ -12,18 +12,17 @@ import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.common.FileUtils.line
 import dev.ithurts.plugin.ide.model.AdvancedBinding
 import dev.ithurts.plugin.ide.model.Binding
-import dev.ithurts.plugin.ide.service.binding.CodeParsingUtils
 import dev.ithurts.plugin.ide.service.binding.Language
 import org.slf4j.LoggerFactory
 
 class JavaBindingOptionsResolver(private val project: Project) {
     fun getBindingOptions(editor: Editor, element: PsiElement): List<Binding> {
         val bindingOptions = mutableListOf<Binding>()
-        CodeParsingUtils.iterateTreeUp(element) { elem ->
-            when (elem) {
-                is PsiMethod -> parseMethod(elem, editor)?.let { bindingOptions.add(it) }
-                is PsiClass -> parseClass(elem, editor)?.let { bindingOptions.add(it) }
-            }
+        PsiTreeUtil.getParentOfType(element, PsiMethod::class.java)?.let { method ->
+            parseMethod(method, editor)?.let { binding -> bindingOptions.add(binding) }
+        }
+        PsiTreeUtil.getParentOfType(element, PsiClass::class.java)?.let { javaClass ->
+            parseClass(javaClass, editor)?.let { binding -> bindingOptions.add(binding) }
         }
         return bindingOptions
     }

@@ -24,6 +24,9 @@ class KotlinBindingOptionsResolver(private val project: Project) {
         PsiTreeUtil.getParentOfType(element, KtNamedFunction::class.java)?.let { function ->
             parseFunction(function, editor)?.let { binding -> bindingOptions.add(binding) }
         }
+        PsiTreeUtil.getParentOfType(element, KtClass::class.java)?.let { ktClass ->
+            parseClass(ktClass, editor)?.let { binding -> bindingOptions.add(binding) }
+        }
         return bindingOptions
     }
 
@@ -47,6 +50,15 @@ class KotlinBindingOptionsResolver(private val project: Project) {
             log.error("Failed to parse function", e)
             null
         }
+    }
+
+    private fun parseClass(ktClass: KtClass, editor: Editor): Binding? {
+        val className = ktClass.fqName?.asString() ?: return null
+        return Binding(
+            FileUtils.getRelativePath(editor),
+            editor.line(ktClass.getClassKeyword()!!.startOffset) to editor.line(ktClass.getClassKeyword()!!.startOffset),
+            AdvancedBinding(Language.KOTLIN, "Class", className, emptyList(), null)
+        )
     }
 
     private fun resolveMethodParams(function: KtNamedFunction): List<String> {

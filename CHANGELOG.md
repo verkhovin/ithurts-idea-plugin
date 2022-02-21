@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.1.2]
+### Added
+- Kotlin Class advanced binding option
+
 ## [0.1.1]
 ### Added
 - Server selection (for On-Premise usage)
