@@ -30,7 +30,9 @@ class DebtEditorDisplayService(private val project: Project) {
             removeOldHighlighters(markupModel)
 
             if (debts.isEmpty()) return@forEach
-            val debtGroupsByStartLine = debts.groupBy { it.bindings[0].startLine }
+            val debtGroupsByStartLine = debts.flatMap { debt ->
+                debt.bindings.map { it.startLine to debt}
+            }.groupBy({ it.first }, { it.second })
 
             renderNewHighlighters(debtGroupsByStartLine, markupModel, relativePath)
         }

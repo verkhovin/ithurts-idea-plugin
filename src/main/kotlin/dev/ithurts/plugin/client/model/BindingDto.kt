@@ -11,32 +11,13 @@ data class BindingDto(
     val sourceLink: SourceLink,
     val advancedBinding: AdvancedBindingDto?
 ) {
-    fun isAdvanced(): Boolean {
-        return advancedBinding != null
-    }
-
-    fun type(): String {
-        return if (isAdvanced()) {
-            advancedBinding!!.type
-        } else {
-            "Source code"
+    override fun toString(): String {
+        if (advancedBinding != null) {
+            return advancedBinding.toString()
         }
-    }
-
-    private fun jvmFullName(advancedBinding: AdvancedBindingDto): String {
-        val hasParent = advancedBinding.parent != null
-        val hasParams = advancedBinding.params.isNotEmpty()
-        return when (advancedBinding.type) {
-            "Function", "Method" ->
-                " ${if (hasParent) "${simpleJvmClassName(advancedBinding.parent)}#" else ""}" +
-                        advancedBinding.name +
-                        (if (hasParams) "(${advancedBinding.params.map(::simpleJvmClassName).joinToString()})" else "")
-            else -> advancedBinding.name
-        }
-    }
-
-    private fun simpleJvmClassName(className: String?): String? {
-        return className?.substringAfterLast(".")
+        val file = filePath.substringAfterLast("/")
+        val lines = "${startLine}${if (startLine == endLine) "" else "-${endLine}"}"
+        return "Source code $file:$lines"
     }
 }
 
@@ -46,4 +27,30 @@ data class AdvancedBindingDto(
     val name: String,
     val params: List<String>,
     val parent: String?
-)
+) {
+    override fun toString(): String = "$type ${formatParent()}${formatName()}${formatParams()}"
+
+    private fun formatName(): String {
+        return if (type.toUpperCase() == "CLASS") {
+            formatJvmClassName(name)
+        } else {
+            name
+        }
+    }
+
+    private fun formatParent(): String {
+        parent ?: return ""
+        return "${formatJvmClassName(parent)}#"
+    }
+
+    private fun formatParams(): String {
+        if (language in listOf(Language.JAVA, Language.KOTLIN) && type in listOf("Method", "Function")) {
+            val simplifiedParamClasses = params.map { it.substringAfterLast(".") }
+            return "(${simplifiedParamClasses.joinToString(", ")})"
+        }
+        if (params.isEmpty()) return ""
+        return "(${params.joinToString(", ")})"
+    }
+
+    private fun formatJvmClassName(name: String) = name.substringAfterLast(".")
+}

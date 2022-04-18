@@ -1,19 +1,25 @@
 package dev.ithurts.plugin.ide.service.debt
 
 import com.intellij.ide.BrowserUtil
+import com.intellij.ide.DataManager
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.jcef.JBCefBrowser
 import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
 import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.client.ItHurtsClient
-import dev.ithurts.plugin.common.FileUtils
+import dev.ithurts.plugin.client.model.BindingDto
 import dev.ithurts.plugin.client.model.DebtDto
+import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.service.CredentialsService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
@@ -79,11 +85,26 @@ class DebtBrowserService(private val project: Project) {
 
     private fun navigateToCode(debtId: String, debts: List<DebtDto>) {
         val debt = debts.find { it.id == debtId }!!
-        val file = FileUtils.virtualFileByPath(project, debt.bindings[0].filePath)
-        ApplicationManager.getApplication().invokeLater {
-            FileEditorManager.getInstance(project).openTextEditor(
-                OpenFileDescriptor(project, file, debt.bindings[0].startLine - 1, 0), true
-            )
+        if (debt.bindings.size == 1) {
+            val file = FileUtils.virtualFileByPath(project, debt.bindings[0].filePath)
+            ApplicationManager.getApplication().invokeLater {
+                FileEditorManager.getInstance(project).openTextEditor(
+                    OpenFileDescriptor(project, file, debt.bindings[0].startLine - 1, 0), true
+                )
+            }
+        } else {
+            val instance = JBPopupFactory.getInstance()
+            DataManager.getInstance().dataContextFromFocusAsync
+                .onSuccess { dataContext ->
+                    val popup = instance.createActionGroupPopup(
+                        "Navigate to",
+                        NavigateToBindingActionGroup(debt),
+                        dataContext,
+                        JBPopupFactory.ActionSelectionAid.NUMBERING,
+                        true
+                    )
+                    popup.showInBestPositionFor(dataContext)
+                }
         }
     }
 
@@ -138,4 +159,24 @@ enum class ShowLevel {
     LINE,
     FILE,
     REPO
+}
+
+class NavigateToBindingActionGroup(
+    private val debt: DebtDto,
+) : ActionGroup() {
+    override fun getChildren(anActionEvent: AnActionEvent?): Array<AnAction> {
+        return debt.bindings.map { binding -> NavigateToBindingAction(binding) }.toTypedArray()
+    }
+
+    internal inner class NavigateToBindingAction(private val binding: BindingDto) : AnAction(binding.toString()) {
+        override fun actionPerformed(e: AnActionEvent) {
+            val project = e.project ?: return
+            val file = FileUtils.virtualFileByPath(project, binding.filePath)
+            ApplicationManager.getApplication().invokeLater {
+                FileEditorManager.getInstance(project).openTextEditor(
+                    OpenFileDescriptor(project, file, binding.startLine - 1, 0), true
+                )
+            }
+        }
+    }
 }

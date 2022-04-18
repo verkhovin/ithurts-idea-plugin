@@ -6,15 +6,15 @@ class StagedDebtService {
     var stagedDebt: StagedDebt? = null
 
     fun stageDebt(
-        bindingOptions: List<Binding>
+        bindingOption: Binding
     ) {
         val stagedDebt = stagedDebt
         if (stagedDebt != null) {
             this.stagedDebt = stagedDebt.copy(
-                bindingOptions = bindingOptions
+                bindingOptions = stagedDebt.bindingOptions + bindingOption
             )
         } else {
-            this.stagedDebt = StagedDebt(bindingOptions)
+            this.stagedDebt = StagedDebt(listOf(bindingOption))
         }
     }
 
@@ -25,6 +25,13 @@ class StagedDebtService {
         val debtStage = this.stagedDebt ?: throw IllegalStateException("DebtStage is null")
         debtStage.title = title
         debtStage.description = description
+    }
+
+    fun removeBinding(bindingOption: Binding) {
+        val debt = this.stagedDebt!!
+        this.stagedDebt = debt.copy(
+            bindingOptions = debt.bindingOptions - bindingOption
+        )
     }
 
     fun reset() {

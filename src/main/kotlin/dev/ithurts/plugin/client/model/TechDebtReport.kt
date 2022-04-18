@@ -1,10 +1,9 @@
 package dev.ithurts.plugin.client.model
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
-import dev.ithurts.plugin.client.model.TechDebtReport.Companion.from
 import dev.ithurts.plugin.ide.service.binding.Language
-import dev.ithurts.plugin.ide.model.Binding as IdeBinding
 import dev.ithurts.plugin.ide.model.AdvancedBinding as IdeInternalBinding
+import dev.ithurts.plugin.ide.model.Binding as IdeBinding
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 class TechDebtReport(
@@ -18,13 +17,13 @@ class TechDebtReport(
             title: String,
             description: String,
             remoteUrl: String,
-            binding: IdeBinding
+            binding: List<IdeBinding>
         ): TechDebtReport {
             return TechDebtReport(
                 title,
                 description,
                 remoteUrl,
-                listOf(Binding.from(binding))
+                binding.map { Binding.from(it) }
             )
         }
     }

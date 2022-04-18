@@ -120,39 +120,39 @@ class ReportDebtToolWindow(private val project: Project) {
     }
 
     private fun reportDebt() {
-        val remoteUrl = propertiesComponent.getValue(Consts.PROJECT_REMOTE_PROPERTY_KEY) ?: return
-
-        val binding = bindingField.selectedItem as Binding
-
-        service<ItHurtsClient>().report(
-            TechDebtReport.from(
-                titleField.text,
-                descriptionField.text,
-                remoteUrl,
-                binding
-            ),
-            {
-                ApplicationManager.getApplication().invokeLater {
-                    fetchDebts()
-                    propertiesComponent.setValue(Consts.SAVED_TITLE_PROPERTY_KEY, null)
-                    propertiesComponent.setValue(Consts.SAVED_DESCRIPTION_PROPERTY_KEY, null)
-                    stagedDebtService.reset()
-                    getReportDebtToolWindow(project).hide()
-                }
-            },
-            { error ->
-                ApplicationManager.getApplication().invokeLater {
-                    Notifications.Bus.notify(
-                        Notification(
-                            "",
-                            "Failed to report Tech Debt to It Hurts",
-                            "Error: ${error.javaClass.simpleName} ${error.message}",
-                            NotificationType.ERROR
-                        )
-                    )
-                }
-            }
-        )
+//        val remoteUrl = propertiesComponent.getValue(Consts.PROJECT_REMOTE_PROPERTY_KEY) ?: return
+//
+//        val binding = bindingField.selectedItem as Binding
+//
+//        service<ItHurtsClient>().report(
+//            TechDebtReport.from(
+//                titleField.text,
+//                descriptionField.text,
+//                remoteUrl,
+//                binding
+//            ),
+//            {
+//                ApplicationManager.getApplication().invokeLater {
+//                    fetchDebts()
+//                    propertiesComponent.setValue(Consts.SAVED_TITLE_PROPERTY_KEY, null)
+//                    propertiesComponent.setValue(Consts.SAVED_DESCRIPTION_PROPERTY_KEY, null)
+//                    stagedDebtService.reset()
+//                    getReportDebtToolWindow(project).hide()
+//                }
+//            },
+//            { error ->
+//                ApplicationManager.getApplication().invokeLater {
+//                    Notifications.Bus.notify(
+//                        Notification(
+//                            "",
+//                            "Failed to report Tech Debt to It Hurts",
+//                            "Error: ${error.javaClass.simpleName} ${error.message}",
+//                            NotificationType.ERROR
+//                        )
+//                    )
+//                }
+//            }
+//        )
     }
 
     private fun fetchDebts() {

@@ -7,7 +7,9 @@ class DebtStorageService(private val project: Project) {
     private var debts: Map<String, List<DebtDto>>? = null
 
     fun indexDebts(debts: Set<DebtDto>) {
-        this.debts = debts.groupBy { it.bindings[0].filePath }
+        this.debts = debts.flatMap { debt ->
+            debt.bindings.map { binding -> binding.filePath to debt }
+        }.groupBy({ it.first }, { it.second }).map { it.key to it.value.distinctBy(DebtDto::id) }.toMap()
     }
 
     fun getDebts(): Map<String, List<DebtDto>> {
@@ -16,5 +18,6 @@ class DebtStorageService(private val project: Project) {
 
     fun getDebts(filePath: String) = debts?.get(filePath) ?: emptyList()
 
-    fun getDebts(filePath: String, lineNumber: Int) = getDebts(filePath).filter { it.bindings[0].startLine == lineNumber }
+    fun getDebts(filePath: String, lineNumber: Int) =
+        getDebts(filePath).filter { it.bindings.any { binding -> binding.startLine == lineNumber } }
 }

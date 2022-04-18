@@ -29,6 +29,7 @@ dependencies {
     implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE") {
         exclude("org.slf4j", "slf4j-api")
     }
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
 }
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
