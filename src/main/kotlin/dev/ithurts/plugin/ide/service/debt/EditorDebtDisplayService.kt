@@ -8,10 +8,11 @@ import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
-import dev.ithurts.plugin.client.model.DebtDto
-import dev.ithurts.plugin.client.model.DebtStatus
+import dev.ithurts.plugin.ide.model.DebtStatus
+import dev.ithurts.plugin.ide.model.DebtView
+import dev.ithurts.plugin.ide.model.start
 
-class DebtEditorDisplayService(private val project: Project) {
+class EditorDebtDisplayService(private val project: Project) {
     fun renderDebtHighlighters() {
         renderDebtHighlighters(FileEditorManager.getInstance(project).allEditors)
     }
@@ -31,7 +32,7 @@ class DebtEditorDisplayService(private val project: Project) {
 
             if (debts.isEmpty()) return@forEach
             val debtGroupsByStartLine = debts.flatMap { debt ->
-                debt.bindings.map { it.startLine to debt}
+                debt.bindings.map { it.lines.start to debt}
             }.groupBy({ it.first }, { it.second })
 
             renderNewHighlighters(debtGroupsByStartLine, markupModel, relativePath)
@@ -39,7 +40,7 @@ class DebtEditorDisplayService(private val project: Project) {
     }
 
     private fun renderNewHighlighters(
-        debtGroupsByStartLine: Map<Int, List<DebtDto>>,
+        debtGroupsByStartLine: Map<Int, List<DebtView>>,
         markupModel: MarkupModel,
         relativePath: String
     ) {

@@ -23,6 +23,8 @@ import okhttp3.internal.EMPTY_REQUEST
 import org.slf4j.LoggerFactory
 import java.io.IOException
 
+
+//TODO this one is absolutely cursed, to be reimplemented
 class ItHurtsClient {
     private val mapper = jacksonObjectMapper()
         .findAndRegisterModules()
@@ -64,6 +66,16 @@ class ItHurtsClient {
         val body = mapper.writeValueAsString(techDebtReport)
             .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder().url(withHost(Consts.debtsUrl)).method("POST", body)
+            .addHeader("Authorization", "Bearer $accessToken")
+            .build()
+        executeAsync(request, { _: Any? -> callback() }, errorCallback)
+    }
+
+    fun editDebt(debtId: String, techDebtReport: TechDebtReport, callback: () -> Unit, errorCallback: (ItHurtsError) -> Unit) {
+        val accessToken = service<CredentialsService>().getAccessToken()
+        val body = mapper.writeValueAsString(techDebtReport)
+            .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder().url("${withHost(Consts.debtsUrl)}/$debtId").method("PUT", body)
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
         executeAsync(request, { _: Any? -> callback() }, errorCallback)

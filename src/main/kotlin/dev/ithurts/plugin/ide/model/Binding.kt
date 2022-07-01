@@ -1,6 +1,6 @@
 package dev.ithurts.plugin.ide.model
 
-open class Binding(
+data class Binding(
     val filePath: String,
     val lines: Pair<Int, Int>,
     val advancedBinding: AdvancedBinding? = null
@@ -14,3 +14,8 @@ open class Binding(
         return "Source code $file:$lines"
     }
 }
+
+val Pair<Int, Int>.start: Int
+    get() = first
+val Pair<Int, Int>.end: Int
+    get() = second

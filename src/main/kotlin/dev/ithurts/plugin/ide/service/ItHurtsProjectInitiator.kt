@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.Consts.PROJECT_REMOTE_PROPERTY_KEY
 import dev.ithurts.plugin.common.RepoUtils
-import dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService
+import dev.ithurts.plugin.ide.service.debt.EditorDebtDisplayService
 import dev.ithurts.plugin.ide.service.debt.DebtStorageService
 
 class ItHurtsProjectInitiator : StartupActivity {
@@ -32,7 +32,7 @@ class ItHurtsProjectInitiator : StartupActivity {
                 debtStorageService.indexDebts(it)
                 registerFileOpenedEventHandler(project)
                 ApplicationManager.getApplication().invokeLater {
-                    project.service<DebtEditorDisplayService>().renderDebtHighlighters()
+                    project.service<EditorDebtDisplayService>().renderDebtHighlighters()
                 }
                 ItHurtsInitiatorState.isInitialized = true
             }
@@ -54,7 +54,7 @@ class ItHurtsProjectInitiator : StartupActivity {
     }
 
     private fun onFileOpened(source: FileEditorManager, file: VirtualFile) {
-        val debtEditorDisplayService = source.project.service<DebtEditorDisplayService>()
+        val debtEditorDisplayService = source.project.service<EditorDebtDisplayService>()
         debtEditorDisplayService.renderDebtHighlighters(source.getEditors(file))
     }
 }

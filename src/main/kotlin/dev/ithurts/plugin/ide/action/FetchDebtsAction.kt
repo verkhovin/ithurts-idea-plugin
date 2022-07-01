@@ -7,7 +7,7 @@ import com.intellij.openapi.components.service
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.RepoUtils
 import dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator
-import dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService
+import dev.ithurts.plugin.ide.service.debt.EditorDebtDisplayService
 import dev.ithurts.plugin.ide.service.debt.DebtStorageService
 
 class FetchDebtsAction : AnAction() {
@@ -20,7 +20,7 @@ class FetchDebtsAction : AnAction() {
         ) {
             debtStorageService.indexDebts(it)
             ApplicationManager.getApplication().invokeLater {
-                project.service<DebtEditorDisplayService>().renderDebtHighlighters()
+                project.service<EditorDebtDisplayService>().renderDebtHighlighters()
                 ItHurtsProjectInitiator().runActivity(project)
             }
         }

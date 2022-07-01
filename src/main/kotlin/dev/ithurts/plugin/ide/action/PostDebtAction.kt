@@ -59,7 +59,7 @@ class ChooseTheBindingActionGroup(
         override fun actionPerformed(e: AnActionEvent) {
             val project = e.project ?: return
             val stagedDebtService = project.service<StagedDebtService>()
-            stagedDebtService.stageDebt(binding)
+            stagedDebtService.stageBinding(binding)
 
             UiUtils.rerenderReportDebtToolWindow(project)
         }

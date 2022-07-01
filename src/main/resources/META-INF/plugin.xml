@@ -17,8 +17,9 @@
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtStorageService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtBrowserService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtEditorDisplayService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.EditorDebtDisplayService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.StagedDebtService"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtReportingService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.resolver.BindingOptionsResolver"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <toolWindow id="It Hurts" anchor="right"

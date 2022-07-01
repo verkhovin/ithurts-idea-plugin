@@ -1,47 +1,50 @@
 package dev.ithurts.plugin.ide.service.debt
 
+import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.ide.model.Binding
+import dev.ithurts.plugin.ide.model.EditableDebt
 
-class StagedDebtService {
-    var stagedDebt: StagedDebt? = null
+class StagedDebtService(private val project: Project) {
+    var stagedDebt: EditableDebt? = null
+    var stageMode: StageMode = StageMode.CREATE
 
-    fun stageDebt(
+    fun stageBinding(
         bindingOption: Binding
     ) {
         val stagedDebt = stagedDebt
         if (stagedDebt != null) {
-            this.stagedDebt = stagedDebt.copy(
-                bindingOptions = stagedDebt.bindingOptions + bindingOption
-            )
+            this.stagedDebt?.bindings?.add(bindingOption)
         } else {
-            this.stagedDebt = StagedDebt(listOf(bindingOption))
+            this.stagedDebt = EditableDebt(bindings = mutableListOf(bindingOption))
         }
     }
 
-    fun saveTitleAndDescription(
-        title: String?,
-        description: String?
-    ) {
-        val debtStage = this.stagedDebt ?: throw IllegalStateException("DebtStage is null")
-        debtStage.title = title
-        debtStage.description = description
+    fun editDebt(debtId: String) {
+        val debtStorageService = project.service<DebtStorageService>()
+        val debt = debtStorageService.getDebt(debtId) ?: throw IllegalArgumentException("Debt with id $debtId does not exist")
+        stageMode = StageMode.EDIT
+        stagedDebt = EditableDebt(debt.id, debt.title, debt.description, debt.bindings.toMutableList())
     }
 
+    fun cancelEditing() {
+        stagedDebt = null
+        stageMode = StageMode.CREATE
+    }
+
+
     fun removeBinding(bindingOption: Binding) {
-        val debt = this.stagedDebt!!
-        this.stagedDebt = debt.copy(
-            bindingOptions = debt.bindingOptions - bindingOption
-        )
+        this.stagedDebt?.bindings?.remove(bindingOption)
     }
 
     fun reset() {
         stagedDebt = null
+        stageMode = StageMode.CREATE
     }
 
 }
 
-data class StagedDebt(
-    val bindingOptions: List<Binding>,
-    var title: String? = null,
-    var description: String? = null
-)
+enum class StageMode {
+    CREATE,
+    EDIT
+}

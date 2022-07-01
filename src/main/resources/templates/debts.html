@@ -1,11 +1,11 @@
 <html>
 <head>
     <script>
-        function navigate_to_code(debtId) {
+        function navigateToCode(debtId) {
             [( ${navigateQuery.inject("debtId")})]
         }
 
-        function show_web(debtId) {
+        function showWeb(debtId) {
             [( ${showWebQuery.inject("debtId")})]
         }
 
@@ -19,6 +19,10 @@
 
         function showFileDebts() {
             [( ${showFileDebtsQuery.inject(this)})]
+        }
+
+        function editDebt(debtId) {
+            [( ${editDebt.inject("debtId")})]
         }
 
         /*<![CDATA[*/
@@ -64,7 +68,7 @@
                    th:text="${debts[0].bindings[0].filePath.substring(debts[0].bindings[0].filePath.lastIndexOf('/') + 1).trim()}"></a>
             </li>
             <li class="breadcrumb-item" th:if="${level.toString() == 'LINE'}"><a
-                    th:text="'from line ' + ${debts[0].bindings[0].startLine}"></a></li>
+                    th:text="'from line ' + ${debts[0].bindings[0].lines.first}"></a></li>
         </ol>
     </nav>
 
@@ -91,9 +95,10 @@
                     Cost: <b th:id="${debt.id}+'-cost'" th:text="${debt.cost}"></b>
                 </p>
                 <pre th:text="${debt.description}" class="card-text" th:classappend="${dark ?'text-white' : '' }"></pre>
-                <a class="card-link" th:href="'javascript:navigate_to_code(\'' + ${debt.id} + '\')'">Navigate to
+                <a class="card-link" th:href="'javascript:editDebt(\'' + ${debt.id} + '\')'">Edit</a>
+                <a class="card-link" th:href="'javascript:navigateToCode(\'' + ${debt.id} + '\')'">Navigate to
                     code</a>
-                <a class="card-link" th:href="'javascript:show_web(\'' + ${debt.id} + '\')'">Web version <i class="bi bi-box-arrow-up-right"></i></a>
+                <a class="card-link" th:href="'javascript:showWeb(\'' + ${debt.id} + '\')'">Web version <i class="bi bi-box-arrow-up-right"></i></a>
             </div>
         </div>
     </div>

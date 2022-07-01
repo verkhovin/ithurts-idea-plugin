@@ -17,9 +17,11 @@ import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
 import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.client.ItHurtsClient
-import dev.ithurts.plugin.client.model.BindingDto
-import dev.ithurts.plugin.client.model.DebtDto
 import dev.ithurts.plugin.common.FileUtils
+import dev.ithurts.plugin.common.UiUtils
+import dev.ithurts.plugin.ide.model.Binding
+import dev.ithurts.plugin.ide.model.DebtView
+import dev.ithurts.plugin.ide.model.start
 import dev.ithurts.plugin.ide.service.CredentialsService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
@@ -30,7 +32,7 @@ import java.io.StringWriter
 class DebtBrowserService(private val project: Project) {
     val browser = JBCefBrowser()
 
-    private var currentDebts = emptyList<DebtDto>()
+    private var currentDebts = emptyList<DebtView>()
     private var currentLevel: ShowLevel? = null
 
     fun showDebts(filePath: String, lineNumber: Int) {
@@ -61,7 +63,7 @@ class DebtBrowserService(private val project: Project) {
         browser.loadHTML(buildPage(currentDebts, currentLevel!!, focusDebtId))
     }
 
-    private fun buildPage(debts: List<DebtDto>, showLevel: ShowLevel, focusDebtId: String): String {
+    private fun buildPage(debts: List<DebtView>, showLevel: ShowLevel, focusDebtId: String): String {
         val templateEngine = TemplateEngine()
         val templateResolver = ClassLoaderTemplateResolver()
         templateResolver.setTemplateMode("HTML")
@@ -70,6 +72,7 @@ class DebtBrowserService(private val project: Project) {
 
         addCallback(context, debts, "navigateQuery", this::navigateToCode)
         addCallback(context, debts, "showWebQuery", this::showDebtInWeb)
+        addCallback(context, debts, "editDebt", this::editDebt)
         addCallback(context, debts, "voteQuery", this::vote)
         addCallback(context, "showRepoDebtsQuery") { showRepoDebts() }
         addCallback(context, "showFileDebtsQuery") { showFileDebts(debts[0].bindings[0].filePath) }
@@ -83,16 +86,18 @@ class DebtBrowserService(private val project: Project) {
         return stringWriter.toString()
     }
 
-    private fun navigateToCode(debtId: String, debts: List<DebtDto>) {
+    private fun navigateToCode(debtId: String, debts: List<DebtView>) {
         val debt = debts.find { it.id == debtId }!!
         if (debt.bindings.size == 1) {
+            // if we have only one binding, navigate to it directly
             val file = FileUtils.virtualFileByPath(project, debt.bindings[0].filePath)
             ApplicationManager.getApplication().invokeLater {
                 FileEditorManager.getInstance(project).openTextEditor(
-                    OpenFileDescriptor(project, file, debt.bindings[0].startLine - 1, 0), true
+                    OpenFileDescriptor(project, file, debt.bindings[0].lines.start - 1, 0), true
                 )
             }
         } else {
+            // otherwise, show popup with available bindings
             val instance = JBPopupFactory.getInstance()
             DataManager.getInstance().dataContextFromFocusAsync
                 .onSuccess { dataContext ->
@@ -108,11 +113,19 @@ class DebtBrowserService(private val project: Project) {
         }
     }
 
-    private fun showDebtInWeb(debtId: String, debts: List<DebtDto>) {
+    private fun showDebtInWeb(debtId: String, debts: List<DebtView>) {
         BrowserUtil.browse("${service<CredentialsService>().getHost()}/debts/$debtId")
     }
 
-    private fun vote(debtId: String, debts: List<DebtDto>) {
+    private fun editDebt(debtId: String, debts: List<DebtView>) {
+        val stagedDebtService = project.service<StagedDebtService>()
+        stagedDebtService.editDebt(debtId)
+        ApplicationManager.getApplication().invokeLater {
+            UiUtils.rerenderReportDebtToolWindow(project)
+        }
+    }
+
+    private fun vote(debtId: String, debts: List<DebtView>) {
         val debt = debts.first { it.id == debtId }
         val client = service<ItHurtsClient>()
         if (debt.voted) {
@@ -123,7 +136,7 @@ class DebtBrowserService(private val project: Project) {
 
     }
 
-    private fun voteChangedCallback(debt: DebtDto) {
+    private fun voteChangedCallback(debt: DebtView) {
         currentDebts = currentDebts - debt
         currentDebts =
             currentDebts + debt.copy(votes = if (debt.voted) debt.votes - 1 else debt.votes + 1, voted = !debt.voted)
@@ -145,9 +158,9 @@ class DebtBrowserService(private val project: Project) {
 
     private fun addCallback(
         context: Context,
-        debts: List<DebtDto>,
+        debts: List<DebtView>,
         callbackName: String,
-        callback: (String, List<DebtDto>) -> Unit
+        callback: (String, List<DebtView>) -> Unit
     ) {
         addCallback(context, callbackName) { debtId ->
             callback(debtId, debts)
@@ -162,19 +175,19 @@ enum class ShowLevel {
 }
 
 class NavigateToBindingActionGroup(
-    private val debt: DebtDto,
+    private val debt: DebtView,
 ) : ActionGroup() {
     override fun getChildren(anActionEvent: AnActionEvent?): Array<AnAction> {
         return debt.bindings.map { binding -> NavigateToBindingAction(binding) }.toTypedArray()
     }
 
-    internal inner class NavigateToBindingAction(private val binding: BindingDto) : AnAction(binding.toString()) {
+    internal inner class NavigateToBindingAction(private val binding: Binding) : AnAction(binding.toString()) {
         override fun actionPerformed(e: AnActionEvent) {
             val project = e.project ?: return
             val file = FileUtils.virtualFileByPath(project, binding.filePath)
             ApplicationManager.getApplication().invokeLater {
                 FileEditorManager.getInstance(project).openTextEditor(
-                    OpenFileDescriptor(project, file, binding.startLine - 1, 0), true
+                    OpenFileDescriptor(project, file, binding.lines.start - 1, 0), true
                 )
             }
         }

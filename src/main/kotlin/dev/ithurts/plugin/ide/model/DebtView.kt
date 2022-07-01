@@ -1,17 +1,16 @@
-package dev.ithurts.plugin.client.model
+package dev.ithurts.plugin.ide.model
 
-import dev.ithurts.plugin.ide.model.DebtStatus
 
-data class DebtDto(
+
+data class DebtView(
     val id: String,
     val title: String,
     val description: String,
     val status: DebtStatus,
-    val bindings: List<BindingDto>,
+    val bindings: List<Binding>,
     val votes: Int,
     val voted: Boolean,
-    val repository: DebtRepositoryDto,
-    val reporter: DebtAccountDto,
+    val reporter: Account?,
     val createdAt: String,
     val updatedAt: String,
     val cost: Int
