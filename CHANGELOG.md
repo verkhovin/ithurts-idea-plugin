@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [0.1.3]
+### Added
+- Debt editing and multiple bindings
+
+
 ## [0.1.2]
 ### Added
 - Kotlin Class advanced binding option
