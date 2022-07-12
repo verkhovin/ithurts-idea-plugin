@@ -32,7 +32,7 @@ class ReportDebtToolWindow(private val project: Project) {
         rootPanel = if (stagedDebt == null || stagedDebt.bindings.isEmpty()) {
             panel {
                 row {
-                    label("Nothing is selected. Select some code -> right click -> \"Report the Debt\"")
+                    label("Nothing is selected. Select some code -> right click -> \"Add Debt Binding\"")
                 }
             }
         } else {
@@ -45,13 +45,14 @@ class ReportDebtToolWindow(private val project: Project) {
                         }
                     }
                 }
-                row {
-                    textField(stagedDebt::title).applyPanelOnLostFocus { rootPanel!! }
+                row("Title:") {
+                    textField(stagedDebt::title)
+                        .applyPanelOnLostFocus { rootPanel!! }
                 }
-                row {
+                row("Description:") {
                     textArea(stagedDebt::description, 40, 10).applyPanelOnLostFocus { rootPanel!! }
                 }
-                titledRow("Bindings") {
+                titledRow("Bindings:") {
                     stagedDebt.bindings.map { binding ->
                         row {
                             link(binding.toString()) {
@@ -70,10 +71,10 @@ class ReportDebtToolWindow(private val project: Project) {
                     }
                 }
                 row {
-                    button("It Hurts!") {
+                    button("Submit") {
                         rootPanel!!.apply()
                         debtReportingService.reportDebt()
-                    }
+                    }.withLargeLeftGap()
                 }
 
             }

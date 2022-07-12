@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.1.4]
+### Added
+- Minor improvements
+
 ## [0.1.3]
 ### Added
 - Debt editing and multiple bindings

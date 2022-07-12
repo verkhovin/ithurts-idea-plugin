@@ -97,7 +97,7 @@
                 <pre th:text="${debt.description}" class="card-text" th:classappend="${dark ?'text-white' : '' }"></pre>
                 <a class="card-link" th:href="'javascript:editDebt(\'' + ${debt.id} + '\')'">Edit</a>
                 <a class="card-link" th:href="'javascript:navigateToCode(\'' + ${debt.id} + '\')'">Navigate to
-                    code</a>
+                    code (<span th:if="${not #lists.isEmpty(debt.bindings)}" th:text="${debt.bindings.size() + ' bindings'}"></span>)</a>
                 <a class="card-link" th:href="'javascript:showWeb(\'' + ${debt.id} + '\')'">Web version <i class="bi bi-box-arrow-up-right"></i></a>
             </div>
         </div>

@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import dev.ithurts.plugin.ide.service.debt.DebtBrowserService
+import icons.ItHurtsIcons
 import javax.swing.Icon
 
 class DebtGutterIconRenderer(
@@ -25,7 +26,7 @@ class DebtGutterIconRenderer(
     }
 
     override fun getIcon(): Icon {
-        return if (muted) AllIcons.Debugger.Question_badge else AllIcons.Actions.New
+        return ItHurtsIcons.DEFAULT_ICON;
     }
 
     override fun getTooltipText(): String {
