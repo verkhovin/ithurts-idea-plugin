@@ -45,11 +45,11 @@ class ReportDebtToolWindow(private val project: Project) {
                         }
                     }
                 }
-                row("Title:") {
+                row {
                     textField(stagedDebt::title)
                         .applyPanelOnLostFocus { rootPanel!! }
                 }
-                row("Description:") {
+                row {
                     textArea(stagedDebt::description, 40, 10).applyPanelOnLostFocus { rootPanel!! }
                 }
                 titledRow("Bindings:") {
@@ -74,7 +74,7 @@ class ReportDebtToolWindow(private val project: Project) {
                     button("Submit") {
                         rootPanel!!.apply()
                         debtReportingService.reportDebt()
-                    }.withLargeLeftGap()
+                    }
                 }
 
             }
