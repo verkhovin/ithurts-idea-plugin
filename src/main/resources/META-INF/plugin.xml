@@ -32,7 +32,7 @@
 
     <actions>
         <action id="ItHurtsActions.PostDebtAction" class="dev.ithurts.plugin.ide.action.PostDebtAction"
-                text="Add Debt Binding (Report the Debt)"
+                text="Add Debt Binding (Report Debt)"
                 description="Report a technical debt to ItHurts"
                 icon="ItHurtsIcons.DEFAULT_ICON"
         >
@@ -48,7 +48,7 @@
                 description="Show technical debts reported to ItHurts for this repository">
         </action>
         <action id="ItHurtsActions.FetchDebtsAction" class="dev.ithurts.plugin.ide.action.FetchDebtsAction"
-                text="Fetch Technical Debts from ItHurts"
+                text="Fetch Technical Debts from It Hurts"
                 description="Fetch newly reported technical debts from ItHurts to IDE">
         </action>
 

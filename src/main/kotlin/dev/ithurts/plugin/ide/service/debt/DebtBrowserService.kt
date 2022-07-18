@@ -101,14 +101,16 @@ class DebtBrowserService(private val project: Project) {
             val instance = JBPopupFactory.getInstance()
             DataManager.getInstance().dataContextFromFocusAsync
                 .onSuccess { dataContext ->
-                    val popup = instance.createActionGroupPopup(
-                        "Navigate to",
-                        NavigateToBindingActionGroup(debt),
-                        dataContext,
-                        JBPopupFactory.ActionSelectionAid.NUMBERING,
-                        true
-                    )
-                    popup.showInBestPositionFor(dataContext)
+                    ApplicationManager.getApplication().invokeLater {
+                        val popup = instance.createActionGroupPopup(
+                            "Navigate to",
+                            NavigateToBindingActionGroup(debt),
+                            dataContext,
+                            JBPopupFactory.ActionSelectionAid.NUMBERING,
+                            true
+                        )
+                        popup.showInBestPositionFor(dataContext)
+                    }
                 }
         }
     }

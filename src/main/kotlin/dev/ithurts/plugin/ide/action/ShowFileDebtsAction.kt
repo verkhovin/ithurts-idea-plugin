@@ -13,7 +13,7 @@ class ShowFileDebtsAction : AnAction() {
         val project = e.project ?: return
         val debtBrowserService = project.service<DebtBrowserService>()
         val virtualFile = FileEditorManager.getInstance(project).selectedEditor?.file ?: return
-        val relativePath = FileUtils.getRelativePath(project, virtualFile)
+        val relativePath = FileUtils.getRelativePath(project, virtualFile)!!
         debtBrowserService.showFileDebts(relativePath)
         ToolWindowManager.getInstance(project).getToolWindow("It Hurts")!!.activate(null)
     }

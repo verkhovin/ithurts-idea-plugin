@@ -14,15 +14,15 @@ object FileUtils {
     ): String {
         val virtualFile = FileDocumentManager.getInstance().getFile(editor.document)
             ?: throw Exception("Failed to load file")
-        return getRelativePath(editor.project!!, virtualFile)
+        return getRelativePath(editor.project!!, virtualFile)!!
     }
 
     fun getRelativePath(
         project: Project,
         file: VirtualFile
-    ): String {
+    ): String? {
         val projectRoot = getProjectRoot(project)
-        return VfsUtilCore.getRelativePath(file, projectRoot)!!
+        return VfsUtilCore.getRelativePath(file, projectRoot)
     }
 
     fun getProjectRoot(project: Project) =

@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.1.6]
+### Fixed
+- bugs
+
 ## [0.1.5]
 ### Fixed
 - Report debt dialog ux bug

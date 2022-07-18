@@ -24,7 +24,7 @@ class EditorDebtDisplayService(private val project: Project) {
             }
             val file = fileEditor.file!!
             val debtsService = project.service<DebtStorageService>()
-            val relativePath = FileUtils.getRelativePath(project, file)
+            val relativePath = FileUtils.getRelativePath(project, file) ?: return@forEach
             val debts = debtsService.getDebts(relativePath)
 
             val markupModel = fileEditor.editor.markupModel
