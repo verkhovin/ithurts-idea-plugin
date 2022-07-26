@@ -1,7 +1,5 @@
 package dev.ithurts.plugin.ide.model
 
-
-
 data class DebtView(
     val id: String,
     val title: String,
@@ -13,5 +11,6 @@ data class DebtView(
     val reporter: Account?,
     val createdAt: String,
     val updatedAt: String,
-    val cost: Int
+    val cost: Int,
+    val hasBindingTrackingLost: Boolean
 )

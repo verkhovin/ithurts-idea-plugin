@@ -14,5 +14,6 @@ data class DebtDto(
     val reporter: DebtAccountDto,
     val createdAt: String,
     val updatedAt: String,
-    val cost: Int
+    val cost: Int,
+    val hasBindingTrackingLost: Boolean
 )

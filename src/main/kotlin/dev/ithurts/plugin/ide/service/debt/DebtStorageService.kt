@@ -40,6 +40,7 @@ class DebtStorageService(private val project: Project) {
                         advancedBindingDto.parent
                     )
                 },
+                bindingDto.status,
                 bindingDto.id
             )
 
@@ -47,7 +48,8 @@ class DebtStorageService(private val project: Project) {
             it.id, it.title, it.description, it.status,
             it.bindings.map { bindingDto ->
                 mapBinding(bindingDto)
-            }, it.votes, it.voted, Account(it.reporter.name), it.createdAt, it.updatedAt, it.cost
+            }, it.votes, it.voted, Account(it.reporter.name), it.createdAt, it.updatedAt, it.cost,
+            it.hasBindingTrackingLost
         )
     }
 

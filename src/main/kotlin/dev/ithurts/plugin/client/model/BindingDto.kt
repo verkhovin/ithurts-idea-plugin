@@ -1,5 +1,6 @@
 package dev.ithurts.plugin.client.model
 
+import dev.ithurts.plugin.ide.model.BindingStatus
 import dev.ithurts.plugin.ide.service.binding.Language
 
 
@@ -9,6 +10,7 @@ data class BindingDto(
     val startLine: Int,
     val endLine: Int,
     val sourceLink: SourceLink,
+    val status: BindingStatus,
     val advancedBinding: AdvancedBindingDto?
 ) {
     override fun toString(): String {

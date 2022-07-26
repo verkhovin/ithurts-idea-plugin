@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.1.7]
+### Added
+- binding statuses
+
 ## [0.1.6]
 ### Fixed
 - bugs

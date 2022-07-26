@@ -1,6 +1,5 @@
 package dev.ithurts.plugin.ide.editor
 
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
@@ -14,9 +13,8 @@ class DebtGutterIconRenderer(
     private val fistDebtTitle: String,
     private val filePath: String,
     private val lineNumber: Int,
-    private val muted: Boolean
+    private val active: Boolean
 ) : GutterIconRenderer() {
-    private var clicked = false
     override fun equals(other: Any?): Boolean {
         return false
     }
@@ -26,7 +24,7 @@ class DebtGutterIconRenderer(
     }
 
     override fun getIcon(): Icon {
-        return ItHurtsIcons.DEFAULT_ICON;
+        return if (active) ItHurtsIcons.DEFAULT_ICON else ItHurtsIcons.MUTED_ICON;
     }
 
     override fun getTooltipText(): String {

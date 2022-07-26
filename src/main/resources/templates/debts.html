@@ -84,12 +84,10 @@
                        th:onClick="vote(this.getAttribute('data-id'))"></i>
                     <span th:id="${debt.id}" th:text="${debt.title}" th:classappend="${!dark ? 'text-black' : '' }"></span>
                 </h5>
-                <h6 th:if="${!debt.status.toString().equals('OPEN')}">
-                    <span class="badge bg-dark">PROBABLY RESOLVED</span>
-                </h6>
                 <h6 th:if="${debt.status.toString().equals('OPEN')}">
                     <span class="badge bg-dark">OPEN</span>
-                    <span th:id="${debt.id}+'-votes'" class="text-muted ps-2 pe-1" th:text="${debt.votes}"></span><span class="text-muted">people were hurt by this</span>
+                    <span th:if="${debt.hasBindingTrackingLost}" class="badge bg-danger">BINDING TRACKING LOST</span>
+                    <span th:id="${debt.id}+'-votes'" class="text-muted ps-2 pe-1" th:text="'Votes: ' + ${debt.votes}"></span>
                 </h6>
                 <p th:classappend="${!dark ?'text-dark' : '' }">
                     Cost: <b th:id="${debt.id}+'-cost'" th:text="${debt.cost}"></b>
@@ -97,7 +95,7 @@
                 <pre th:text="${debt.description}" class="card-text" th:classappend="${dark ?'text-white' : '' }"></pre>
                 <a class="card-link" th:href="'javascript:editDebt(\'' + ${debt.id} + '\')'">Edit</a>
                 <a class="card-link" th:href="'javascript:navigateToCode(\'' + ${debt.id} + '\')'">Navigate to
-                    code (<span th:if="${not #lists.isEmpty(debt.bindings)}" th:text="${debt.bindings.size() + ' bindings'}"></span>)</a>
+                    code (<span th:if="${not #lists.isEmpty(debt.bindings)}" th:text="${'Bindings: ' + debt.bindings.size()}"></span>)</a>
                 <a class="card-link" th:href="'javascript:showWeb(\'' + ${debt.id} + '\')'">Web version <i class="bi bi-box-arrow-up-right"></i></a>
             </div>
         </div>

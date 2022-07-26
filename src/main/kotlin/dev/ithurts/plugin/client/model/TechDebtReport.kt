@@ -1,6 +1,7 @@
 package dev.ithurts.plugin.client.model
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
+import dev.ithurts.plugin.ide.model.BindingStatus
 import dev.ithurts.plugin.ide.service.binding.Language
 import dev.ithurts.plugin.ide.model.AdvancedBinding as IdeInternalBinding
 import dev.ithurts.plugin.ide.model.Binding as IdeBinding
@@ -34,6 +35,7 @@ class Binding(
     val filePath: String,
     val startLine: Int,
     val endLine: Int,
+    val status: BindingStatus,
     val advancedBinding: AdvancedBinding?,
     val id: String?,
 ) {
@@ -43,6 +45,7 @@ class Binding(
                 binding.filePath,
                 binding.lines.first,
                 binding.lines.second,
+                binding.status,
                 binding.advancedBinding?.let { AdvancedBinding.from(it) },
                 binding.id
             )

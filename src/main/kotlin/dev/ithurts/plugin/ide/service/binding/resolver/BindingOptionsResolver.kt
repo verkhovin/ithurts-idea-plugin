@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.common.FileUtils.line
 import dev.ithurts.plugin.ide.model.Binding
+import dev.ithurts.plugin.ide.model.BindingStatus
 import dev.ithurts.plugin.ide.service.binding.Language
 
 class BindingOptionsResolver (private val project: Project) {
@@ -29,6 +30,6 @@ class BindingOptionsResolver (private val project: Project) {
                         editor.line(editor.selectionModel.selectionEnd - 1)
             } else {
                 editor.caretModel.logicalPosition.line + 1 to editor.caretModel.logicalPosition.line + 1
-            }
+            },
         )
 }
