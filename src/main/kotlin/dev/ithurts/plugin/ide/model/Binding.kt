@@ -3,7 +3,8 @@ package dev.ithurts.plugin.ide.model
 data class Binding(
     val filePath: String,
     val lines: Pair<Int, Int>,
-    val advancedBinding: AdvancedBinding? = null
+    val advancedBinding: AdvancedBinding? = null,
+    val id: String? = null
 ) {
     override fun toString(): String {
         if (advancedBinding != null) {

@@ -39,7 +39,8 @@ class DebtStorageService(private val project: Project) {
                         advancedBindingDto.params,
                         advancedBindingDto.parent
                     )
-                }
+                },
+                bindingDto.id
             )
 
         return DebtView(

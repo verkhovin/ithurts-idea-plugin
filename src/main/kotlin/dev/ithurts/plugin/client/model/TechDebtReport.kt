@@ -34,7 +34,8 @@ class Binding(
     val filePath: String,
     val startLine: Int,
     val endLine: Int,
-    val advancedBinding: AdvancedBinding?
+    val advancedBinding: AdvancedBinding?,
+    val id: String?,
 ) {
     companion object {
         fun from(binding: IdeBinding): Binding {
@@ -42,7 +43,8 @@ class Binding(
                 binding.filePath,
                 binding.lines.first,
                 binding.lines.second,
-                binding.advancedBinding?.let { AdvancedBinding.from(it) }
+                binding.advancedBinding?.let { AdvancedBinding.from(it) },
+                binding.id
             )
         }
     }
