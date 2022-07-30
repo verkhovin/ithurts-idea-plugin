@@ -21,6 +21,7 @@
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.StagedDebtService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtReportingService"/>
         <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.resolver.BindingOptionsResolver"/>
+        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.ItHurtsGitRepositoryService"/>
         <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
         <toolWindow id="It Hurts" anchor="right"
                     factoryClass="dev.ithurts.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"

@@ -20,6 +20,7 @@ version = properties("pluginVersion")
 
 // Configure project's dependencies
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -35,6 +36,9 @@ dependencies {
         exclude("org.slf4j", "slf4j-api")
     }
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
+    implementation("dev.ithurts:git-diff-analyzer:1.0-SNAPSHOT") {
+        exclude("org.slf4j", "slf4j-api")
+    }
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html

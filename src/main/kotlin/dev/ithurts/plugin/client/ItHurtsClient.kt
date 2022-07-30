@@ -9,12 +9,9 @@ import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import dev.ithurts.plugin.client.model.*
 import dev.ithurts.plugin.common.Consts
 import dev.ithurts.plugin.ide.service.CredentialsService
-import dev.ithurts.plugin.client.model.DebtDto
-import dev.ithurts.plugin.client.model.Me
-import dev.ithurts.plugin.client.model.TechDebtReport
-import dev.ithurts.plugin.client.model.Tokens
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -109,6 +106,22 @@ class ItHurtsClient {
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
         executeAsync(request, callback, object : TypeReference<Set<DebtDto>>() {}) {
+            log.error("Failed to get debts for repo $remoteUrl", it.toString())
+        }
+    }
+
+    fun getRepository(
+        remoteUrl: String,
+        callback: (debts: RepositoryDto) -> Unit,
+    ) {
+        val accessToken = service<CredentialsService>().getAccessToken()
+        val url = withHost(Consts.repositoriesUrl).toHttpUrl().newBuilder()
+            .addQueryParameter("remoteUrl", remoteUrl)
+            .build()
+        val request = Request.Builder().url(url)
+            .addHeader("Authorization", "Bearer $accessToken")
+            .build()
+        executeAsync(request, callback) {
             log.error("Failed to get debts for repo $remoteUrl", it.toString())
         }
     }
