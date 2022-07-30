@@ -52,6 +52,4 @@ class DebtStorageService(private val project: Project) {
             it.hasBindingTrackingLost
         )
     }
-
-
 }

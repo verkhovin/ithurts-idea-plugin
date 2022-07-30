@@ -6,6 +6,7 @@ object Consts {
     const val accessTokenUrl = "${apiUrl}/auth/access-token"
     const val meUrl = "${apiUrl}/me"
     const val debtsUrl = "${apiUrl}/debts"
+    const val repositoriesUrl = "${apiUrl}/repositories"
 
     const val PROJECT_REMOTE_PROPERTY_KEY = "dev.ithurts.idea-integration.projectRemote"
     const val SAVED_TITLE_PROPERTY_KEY = "dev.ithurts.idea-integration.title"

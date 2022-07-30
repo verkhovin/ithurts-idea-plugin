@@ -1,5 +1,6 @@
 package dev.ithurts.plugin.ide.service.debt
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.markup.MarkupModel
 import com.intellij.openapi.fileEditor.FileEditor
@@ -9,7 +10,6 @@ import com.intellij.openapi.project.Project
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
 import dev.ithurts.plugin.ide.model.BindingStatus
-import dev.ithurts.plugin.ide.model.DebtStatus
 import dev.ithurts.plugin.ide.model.DebtView
 import dev.ithurts.plugin.ide.model.start
 
@@ -29,14 +29,16 @@ class EditorDebtDisplayService(private val project: Project) {
             val debts = debtsService.getDebts(relativePath)
 
             val markupModel = fileEditor.editor.markupModel
-            removeOldHighlighters(markupModel)
 
             if (debts.isEmpty()) return@forEach
             val debtGroupsByStartLine = debts.flatMap { debt ->
                 debt.bindings.map { binding -> binding.lines.start to (debt) }
             }.groupBy({ it.first }, { it.second })
 
-            renderNewHighlighters(debtGroupsByStartLine, markupModel, relativePath)
+            ApplicationManager.getApplication().invokeLater {
+                removeOldHighlighters(markupModel)
+                renderNewHighlighters(debtGroupsByStartLine, markupModel, relativePath)
+            }
         }
     }
 

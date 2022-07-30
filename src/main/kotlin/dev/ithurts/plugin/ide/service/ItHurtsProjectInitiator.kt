@@ -1,7 +1,6 @@
 package dev.ithurts.plugin.ide.service
 
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
@@ -13,6 +12,7 @@ import dev.ithurts.plugin.common.Consts.PROJECT_REMOTE_PROPERTY_KEY
 import dev.ithurts.plugin.common.RepoUtils
 import dev.ithurts.plugin.ide.service.debt.EditorDebtDisplayService
 import dev.ithurts.plugin.ide.service.debt.DebtStorageService
+import dev.ithurts.plugin.ide.service.debt.ItHurtsGitRepositoryService
 
 class ItHurtsProjectInitiator : StartupActivity {
 
@@ -25,15 +25,17 @@ class ItHurtsProjectInitiator : StartupActivity {
         val credentialsService = service<CredentialsService>()
 
         if (credentialsService.hasCredentials()) {
+            val client = service<ItHurtsClient>()
+            client.getRepository(remoteUrl) {
+                project.service<ItHurtsGitRepositoryService>().mainBranch = it.mainBranch
+            }
             val debtStorageService = project.service<DebtStorageService>()
-            service<ItHurtsClient>().getDebtsForRepo(
+            client.getDebtsForRepo(
                 remoteUrl,
             ) {
                 debtStorageService.indexDebts(it)
                 registerFileOpenedEventHandler(project)
-                ApplicationManager.getApplication().invokeLater {
-                    project.service<EditorDebtDisplayService>().renderDebtHighlighters()
-                }
+                project.service<EditorDebtDisplayService>().renderDebtHighlighters()
                 ItHurtsInitiatorState.isInitialized = true
             }
         }

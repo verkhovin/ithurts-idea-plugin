@@ -7,10 +7,12 @@ import com.intellij.psi.PsiElement
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.common.FileUtils.line
 import dev.ithurts.plugin.ide.model.Binding
-import dev.ithurts.plugin.ide.model.BindingStatus
 import dev.ithurts.plugin.ide.service.binding.Language
+import dev.ithurts.plugin.ide.service.debt.ItHurtsGitRepositoryService
 
 class BindingOptionsResolver (private val project: Project) {
+    private val repositoryService = project.service<ItHurtsGitRepositoryService>()
+
     fun getBindingOptions(editor: Editor, element: PsiElement, language: Language?): List<Binding> {
         val advancedBindings: List<Binding> = when (language) {
             Language.JAVA -> project.service<JavaBindingOptionsResolver>().getBindingOptions(editor, element)
@@ -18,8 +20,11 @@ class BindingOptionsResolver (private val project: Project) {
             Language.PYTHON -> emptyList() //project.service<PythonBindingOptionsResolver>().getBindingOptions(element)
             else -> emptyList()
         }
-        val basicBinding = basicBinding(editor)
-        return advancedBindings + basicBinding
+        if (repositoryService.isOnMainBranch()) {
+            val basicBinding = basicBinding(editor)
+            return advancedBindings + basicBinding
+        }
+        return advancedBindings
     }
 
     private fun basicBinding(editor: Editor) =
