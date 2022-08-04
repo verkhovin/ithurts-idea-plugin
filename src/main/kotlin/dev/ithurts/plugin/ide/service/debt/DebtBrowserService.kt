@@ -12,51 +12,66 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.jcef.JBCefBrowser
 import com.intellij.ui.jcef.JBCefBrowserBase
+import com.intellij.ui.jcef.JBCefClient.Properties.JS_QUERY_POOL_SIZE
 import com.intellij.ui.jcef.JBCefJSQuery
 import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.client.ItHurtsClient
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.common.UiUtils
-import dev.ithurts.plugin.ide.model.Binding
 import dev.ithurts.plugin.ide.model.DebtView
 import dev.ithurts.plugin.ide.model.start
 import dev.ithurts.plugin.ide.service.CredentialsService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
+import java.awt.MouseInfo
 import java.io.StringWriter
 
 
 class DebtBrowserService(private val project: Project) {
-    val browser = JBCefBrowser()
+    val browser = JBCefBrowser().also { it.setProperty(JS_QUERY_POOL_SIZE, 10000) }
 
     private var currentDebts = emptyList<DebtView>()
     private var currentLevel: ShowLevel? = null
 
     fun showDebts(filePath: String, lineNumber: Int) {
-        val debtStorageService = project.service<DebtStorageService>()
-        currentDebts = debtStorageService.getDebts(filePath, lineNumber)
-        currentLevel = ShowLevel.LINE
-        render()
+        ApplicationManager.getApplication().executeOnPooledThread {
+            val debtStorageService = project.service<DebtStorageService>()
+            currentDebts = debtStorageService.getDebts(filePath, lineNumber)
+            currentLevel = ShowLevel.LINE
 
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("It Hurts")!!
-        toolWindow.activate(null)
+            ApplicationManager.getApplication().invokeLater {
+                render()
+                val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("It Hurts")!!
+                toolWindow.activate(null)
+            }
+        }
     }
 
     fun showRepoDebts() {
-        val debtStorageService = project.service<DebtStorageService>()
-        currentDebts = debtStorageService.getDebts().flatMap { it.value }
-        currentLevel = ShowLevel.REPO
-        render()
+        ApplicationManager.getApplication().executeOnPooledThread {
+            val debtStorageService = project.service<DebtStorageService>()
+            currentDebts = debtStorageService.getDebts().flatMap { it.value }
+            currentLevel = ShowLevel.REPO
+            ApplicationManager.getApplication().invokeLater {
+                render()
+            }
+        }
     }
 
     fun showFileDebts(filePath: String) {
-        val debtStorageService = project.service<DebtStorageService>()
-        currentDebts = debtStorageService.getDebts(filePath)
-        currentLevel = ShowLevel.FILE
-        render()
+        ApplicationManager.getApplication().executeOnPooledThread {
+            val debtStorageService = project.service<DebtStorageService>()
+            currentDebts = debtStorageService.getDebts(filePath)
+            currentLevel = ShowLevel.FILE
+
+            ApplicationManager.getApplication().invokeLater {
+                render()
+            }
+        }
     }
 
     private fun render(focusDebtId: String = "NULL") {
@@ -109,7 +124,7 @@ class DebtBrowserService(private val project: Project) {
                             JBPopupFactory.ActionSelectionAid.NUMBERING,
                             true
                         )
-                        popup.showInBestPositionFor(dataContext)
+                        popup.show(RelativePoint(MouseInfo.getPointerInfo().location))
                     }
                 }
         }
@@ -121,9 +136,11 @@ class DebtBrowserService(private val project: Project) {
 
     private fun editDebt(debtId: String, debts: List<DebtView>) {
         val stagedDebtService = project.service<StagedDebtService>()
-        stagedDebtService.editDebt(debtId)
-        ApplicationManager.getApplication().invokeLater {
-            UiUtils.rerenderReportDebtToolWindow(project)
+        ApplicationManager.getApplication().executeOnPooledThread {
+            stagedDebtService.editDebt(debtId)
+            ApplicationManager.getApplication().invokeLater {
+                UiUtils.rerenderReportDebtToolWindow(project)
+            }
         }
     }
 
@@ -131,9 +148,9 @@ class DebtBrowserService(private val project: Project) {
         val debt = debts.first { it.id == debtId }
         val client = service<ItHurtsClient>()
         if (debt.voted) {
-            client.downVote(debt.id, {voteChangedCallback(debt)}, {})
+            client.downVote(debt.id, { voteChangedCallback(debt) }, {})
         } else {
-            client.vote(debt.id, {voteChangedCallback(debt)}, {})
+            client.vote(debt.id, { voteChangedCallback(debt) }, {})
         }
 
     }
@@ -149,7 +166,7 @@ class DebtBrowserService(private val project: Project) {
     private fun addCallback(
         context: Context,
         callbackName: String,
-        callback: (String) -> Unit
+        callback: (String) -> Unit,
     ) {
         val query = JBCefJSQuery.create(browser as JBCefBrowserBase)
         query.addHandler { param ->
@@ -162,7 +179,7 @@ class DebtBrowserService(private val project: Project) {
         context: Context,
         debts: List<DebtView>,
         callbackName: String,
-        callback: (String, List<DebtView>) -> Unit
+        callback: (String, List<DebtView>) -> Unit,
     ) {
         addCallback(context, callbackName) { debtId ->
             callback(debtId, debts)
@@ -180,17 +197,28 @@ class NavigateToBindingActionGroup(
     private val debt: DebtView,
 ) : ActionGroup() {
     override fun getChildren(anActionEvent: AnActionEvent?): Array<AnAction> {
-        return debt.bindings.map { binding -> NavigateToBindingAction(binding) }.toTypedArray()
+        return debt.bindings.map { binding -> NavigateToBindingAction(debt.id, binding.id!!, binding.toString()) }
+            .toTypedArray()
     }
 
-    internal inner class NavigateToBindingAction(private val binding: Binding) : AnAction(binding.toString()) {
+    internal inner class NavigateToBindingAction(
+        private val debtId: String,
+        private val bindingId: String,
+        text: String,
+    ) : AnAction(text) {
         override fun actionPerformed(e: AnActionEvent) {
             val project = e.project ?: return
-            val file = FileUtils.virtualFileByPath(project, binding.filePath)
-            ApplicationManager.getApplication().invokeLater {
-                FileEditorManager.getInstance(project).openTextEditor(
-                    OpenFileDescriptor(project, file, binding.lines.start - 1, 0), true
-                )
+            ApplicationManager.getApplication().executeOnPooledThread {
+                val actualBinding = project.service<DebtStorageService>()
+                    .getDebt(debtId)
+                    ?.bindings
+                    ?.first { it.id == bindingId }!!
+                val file = FileUtils.virtualFileByPath(project, actualBinding.filePath)
+                ApplicationManager.getApplication().invokeLater {
+                    FileEditorManager.getInstance(project).openTextEditor(
+                        OpenFileDescriptor(project, file, actualBinding.actualPosition.start - 1, 0), true
+                    )
+                }
             }
         }
     }

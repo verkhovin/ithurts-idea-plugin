@@ -33,7 +33,7 @@ class ItHurtsSettingsWindow {
     private var initialPanel =  panel {
         row {
             button("Connect to It Hurts") {
-                host = hostField.text
+                host = formatHost(hostField.text)
                 navigateToAuthCode()
                 show(authCodePanel)
             }
@@ -49,6 +49,11 @@ class ItHurtsSettingsWindow {
                 }
             }
         }
+    }
+
+    private fun formatHost(host: String): String {
+        val trimmed = host.trim()
+        return if (trimmed.endsWith("/")) trimmed.substringBeforeLast("/") else trimmed
     }
 
     private val authCodePanel = JPanel(MigLayout("fillx"))

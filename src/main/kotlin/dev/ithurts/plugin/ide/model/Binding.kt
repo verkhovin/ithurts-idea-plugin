@@ -5,8 +5,12 @@ data class Binding(
     val lines: Pair<Int, Int>,
     val advancedBinding: AdvancedBinding? = null,
     val status: BindingStatus = BindingStatus.ACTIVE,
-    val id: String? = null
+    val id: String? = null,
+    private val overriddenPosition: Pair<Int, Int>? = null,
 ) {
+    val actualPosition: Pair<Int, Int>
+        get() = overriddenPosition ?: lines
+
     override fun toString(): String {
         if (advancedBinding != null) {
             val advancedBindingTitle = advancedBinding.toString()

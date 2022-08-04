@@ -27,7 +27,7 @@ class ItHurtsProjectInitiator : StartupActivity {
         if (credentialsService.hasCredentials()) {
             val client = service<ItHurtsClient>()
             client.getRepository(remoteUrl) {
-                service<ItHurtsGitRepositoryService>().mainBranch = it.mainBranch
+                project.service<ItHurtsGitRepositoryService>().mainBranch = it.mainBranch
             }
             val debtStorageService = project.service<DebtStorageService>()
             client.getDebtsForRepo(
