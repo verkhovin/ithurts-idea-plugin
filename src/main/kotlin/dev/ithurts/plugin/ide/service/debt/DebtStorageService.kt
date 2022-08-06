@@ -1,6 +1,8 @@
 package dev.ithurts.plugin.ide.service.debt
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import dev.ithurts.git.DiffUtils
 import dev.ithurts.git.GitDiffAnalyzer
@@ -16,7 +18,7 @@ import io.reflectoring.diffparser.api.model.Diff
 /**
  * getDebts/getDebt methods must be run within pooled thread
  */
-class DebtStorageService(private val project: Project) {
+class DebtStorageService(project: Project) {
     private var debts: Map<String, List<DebtView>>? = null
 
     private val analyzer = GitDiffAnalyzer(HunkResolvingStrategy())
@@ -33,7 +35,8 @@ class DebtStorageService(private val project: Project) {
     }
 
     fun getDebts(): Map<String, List<DebtView>> {
-        return debts!!.mapValues { calculateActualPositions(it.value) }
+        val diffsByFilePath = diffBetweenWorkingDirAndMainBranch()
+        return debts!!.mapValues { calculateActualPositions(it.value, diffsByFilePath) }
     }
 
     fun getDebts(filePath: String) = getDebts()[filePath] ?: emptyList()
@@ -70,8 +73,7 @@ class DebtStorageService(private val project: Project) {
         )
     }
 
-    private fun calculateActualPositions(debts: List<DebtView>): List<DebtView> {
-        val diffsByFilePath = diffBetweenWorkingDirAndMainBranch()
+    private fun calculateActualPositions(debts: List<DebtView>, diffsByFilePath: Map<String, List<Diff>>): List<DebtView> {
         return debts.map { calculateActualPositions(it, diffsByFilePath) }
     }
 
@@ -90,9 +92,11 @@ class DebtStorageService(private val project: Project) {
     }
 
     private fun diffBetweenWorkingDirAndMainBranch(): Map<String, List<Diff>> {
-        // TODO flush file to disk
+        ApplicationManager.getApplication().invokeAndWait {
+            FileDocumentManager.getInstance().saveAllDocuments()
+        }
         val patch = git.diff(gitRepository, emptyList(), "main").outputAsJoinedString
-        val diffs = unifiedDiffParser.parse(patch.toByteArray());
+        val diffs = unifiedDiffParser.parse(patch.toByteArray())
         return diffs.groupBy { DiffUtils.trimFilePath(it.fromFileName) }
     }
 
