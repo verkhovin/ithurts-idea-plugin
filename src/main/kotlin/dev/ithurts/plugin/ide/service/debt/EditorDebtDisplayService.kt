@@ -2,18 +2,25 @@ package dev.ithurts.plugin.ide.service.debt
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.markup.MarkupModel
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.util.PsiUtil
 import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.ide.editor.DebtGutterIconRenderer
+import dev.ithurts.plugin.ide.model.Binding
 import dev.ithurts.plugin.ide.model.BindingStatus
 import dev.ithurts.plugin.ide.model.DebtView
 import dev.ithurts.plugin.ide.model.start
+import dev.ithurts.plugin.ide.service.binding.location.BindingLocationService
 
 class EditorDebtDisplayService(private val project: Project) {
+    private val bindingLocationService: BindingLocationService = project.service()
+
     fun renderDebtHighlighters() {
         renderDebtHighlighters(FileEditorManager.getInstance(project).allEditors)
     }
@@ -27,19 +34,28 @@ class EditorDebtDisplayService(private val project: Project) {
             val debtsService = project.service<DebtStorageService>()
             val relativePath = FileUtils.getRelativePath(project, file) ?: return@forEach
             val debts = debtsService.getDebts(relativePath)
-
-            val markupModel = fileEditor.editor.markupModel
-
             if (debts.isEmpty()) return@forEach
-            val debtGroupsByStartLine = debts.flatMap { debt ->
-                debt.bindings.map { binding -> binding.lines.start to (debt) }
-            }.groupBy({ it.first }, { it.second })
 
             ApplicationManager.getApplication().invokeLater {
+                val markupModel = fileEditor.editor.markupModel
+
+                val debtGroupsByStartLine = debts.flatMap { debt ->
+                    debt.bindings.map { binding -> getLine(binding, file, markupModel.document) to (debt) }
+                }.groupBy({ it.first }, { it.second })
+
                 removeOldHighlighters(markupModel)
                 renderNewHighlighters(debtGroupsByStartLine, markupModel, relativePath)
             }
         }
+    }
+
+    private fun getLine(binding: Binding, file: VirtualFile, document: Document): Int {
+        if (binding.advancedBinding == null) {
+            return binding.lines.start
+        }
+        val psiFile = PsiUtil.getPsiFile(project, file)
+        val offset = bindingLocationService.getLocation(psiFile, binding)
+        return document.getLineNumber(offset) + 1
     }
 
     private fun renderNewHighlighters(
@@ -52,7 +68,7 @@ class EditorDebtDisplayService(private val project: Project) {
                 null, line - 1, 1
             )
             val renderAsActive = debts.flatMap { it.bindings }
-                .filter {it.lines.start == line}
+                .filter { it.lines.start == line }
                 .none { it.status == BindingStatus.TRACKING_LOST }
             lineHighlighter.gutterIconRenderer =
                 DebtGutterIconRenderer(

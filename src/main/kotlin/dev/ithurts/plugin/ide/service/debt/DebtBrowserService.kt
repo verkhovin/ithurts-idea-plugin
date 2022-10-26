@@ -7,8 +7,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.ToolWindowManager
@@ -17,12 +15,11 @@ import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
 import com.intellij.util.ui.UIUtil
 import dev.ithurts.plugin.client.ItHurtsClient
-import dev.ithurts.plugin.common.FileUtils
 import dev.ithurts.plugin.common.UiUtils
 import dev.ithurts.plugin.ide.model.Binding
 import dev.ithurts.plugin.ide.model.DebtView
-import dev.ithurts.plugin.ide.model.start
 import dev.ithurts.plugin.ide.service.CredentialsService
+import dev.ithurts.plugin.ide.service.binding.BindingNavigationService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
@@ -34,6 +31,8 @@ class DebtBrowserService(private val project: Project) {
 
     private var currentDebts = emptyList<DebtView>()
     private var currentLevel: ShowLevel? = null
+
+    private val bindingNavigationService: BindingNavigationService = project.service()
 
     fun showDebts(filePath: String, lineNumber: Int) {
         val debtStorageService = project.service<DebtStorageService>()
@@ -90,12 +89,8 @@ class DebtBrowserService(private val project: Project) {
         val debt = debts.find { it.id == debtId }!!
         if (debt.bindings.size == 1) {
             // if we have only one binding, navigate to it directly
-            val file = FileUtils.virtualFileByPath(project, debt.bindings[0].filePath)
-            ApplicationManager.getApplication().invokeLater {
-                FileEditorManager.getInstance(project).openTextEditor(
-                    OpenFileDescriptor(project, file, debt.bindings[0].lines.start - 1, 0), true
-                )
-            }
+            val binding = debt.bindings[0]
+            bindingNavigationService.navigateTo(binding)
         } else {
             // otherwise, show popup with available bindings
             val instance = JBPopupFactory.getInstance()
@@ -104,7 +99,7 @@ class DebtBrowserService(private val project: Project) {
                     ApplicationManager.getApplication().invokeLater {
                         val popup = instance.createActionGroupPopup(
                             "Navigate to",
-                            NavigateToBindingActionGroup(debt),
+                            NavigateToBindingActionGroup(debt, bindingNavigationService),
                             dataContext,
                             JBPopupFactory.ActionSelectionAid.NUMBERING,
                             true
@@ -178,6 +173,7 @@ enum class ShowLevel {
 
 class NavigateToBindingActionGroup(
     private val debt: DebtView,
+    private val bindingNavigationService: BindingNavigationService,
 ) : ActionGroup() {
     override fun getChildren(anActionEvent: AnActionEvent?): Array<AnAction> {
         return debt.bindings.map { binding -> NavigateToBindingAction(binding) }.toTypedArray()
@@ -185,13 +181,7 @@ class NavigateToBindingActionGroup(
 
     internal inner class NavigateToBindingAction(private val binding: Binding) : AnAction(binding.toString()) {
         override fun actionPerformed(e: AnActionEvent) {
-            val project = e.project ?: return
-            val file = FileUtils.virtualFileByPath(project, binding.filePath)
-            ApplicationManager.getApplication().invokeLater {
-                FileEditorManager.getInstance(project).openTextEditor(
-                    OpenFileDescriptor(project, file, binding.lines.start - 1, 0), true
-                )
-            }
+            bindingNavigationService.navigateTo(binding)
         }
     }
 }
