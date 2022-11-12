@@ -10,6 +10,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.jcef.JBCefBrowser
 import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
@@ -23,6 +24,7 @@ import dev.ithurts.plugin.ide.service.binding.BindingNavigationService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
+import java.awt.MouseInfo
 import java.io.StringWriter
 
 
@@ -104,7 +106,7 @@ class DebtBrowserService(private val project: Project) {
                             JBPopupFactory.ActionSelectionAid.NUMBERING,
                             true
                         )
-                        popup.showInBestPositionFor(dataContext)
+                        popup.show(RelativePoint(MouseInfo.getPointerInfo().location))
                     }
                 }
         }

@@ -20,9 +20,8 @@ class BindingOptionsResolver (private val project: Project) {
             Language.PYTHON -> emptyList() //project.service<PythonBindingOptionsResolver>().getBindingOptions(element)
             else -> emptyList()
         }
-        if (repositoryService.isOnMainBranch()) {
-            val basicBinding = basicBinding(editor)
-            return advancedBindings + basicBinding
+        if (advancedBindings.isEmpty()) {
+            return listOf(basicBinding(editor))
         }
         return advancedBindings
     }

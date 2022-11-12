@@ -39,7 +39,6 @@ class ReportDebtToolWindowOld(private val project: Project) {
     private val mainBranch: String = project.service<ItHurtsGitRepositoryService>().mainBranch
 
     private val emptyRoot = JPanel(MigLayout("fill"))
-    private val root = JPanel(MigLayout("fillx", "[]", "[][fill,grow][][]"))
     private val cancelEditingButton = link("Cancel editing") {
         stagedDebtService.cancelEditing()
         UiUtils.hideReportDebtToolWindow(project)
@@ -51,6 +50,7 @@ class ReportDebtToolWindowOld(private val project: Project) {
 
     fun getContent(): Content {
         val stagedDebt = stagedDebtService.stagedDebt
+        val isEditing = stagedDebtService.stageMode == StageMode.EDIT
         if (stagedDebt == null) {
             emptyRoot.add(
                 JLabel("Nothing is selected. Select some code -> right click -> \"Add Debt Binding\""),
@@ -58,6 +58,7 @@ class ReportDebtToolWindowOld(private val project: Project) {
             )
             return wrapToContent(emptyRoot)
         }
+        val root = JPanel(MigLayout("fillx", "[]", if (isEditing) "[][][fill,grow][][]" else "[][fill,grow][][]"))
 
         setValues(stagedDebt)
 
@@ -65,7 +66,7 @@ class ReportDebtToolWindowOld(private val project: Project) {
         titleField.document.addDocumentListener(ValueBindingDocumentListener(stagedDebt::title) {titleField.text})
         descriptionField.document.addDocumentListener(ValueBindingDocumentListener(stagedDebt::description) {descriptionField.text})
 
-        if (stagedDebtService.stageMode == StageMode.EDIT) {
+        if (isEditing) {
             root.add(cancelEditingButton, "grow, span")
         }
 

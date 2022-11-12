@@ -6,7 +6,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.refactoring.suggested.startOffset
 import dev.ithurts.plugin.ide.model.Binding
 
-class JavaBindingSearchingElementVisitor(
+class JavaBindingSearchingElementVisitor    (
     private val bindings: List<Binding>
 ) : JavaRecursiveElementWalkingVisitor(), LanguageSpecificBindingLocator {
     override val bindingOffsets = mutableMapOf<String, Int>()
@@ -32,7 +32,7 @@ class JavaBindingSearchingElementVisitor(
         bindings
             .filter { it.advancedBinding!!.type == "Class" }
             .forEach {
-                if(aClass.name != it.advancedBinding!!.name) {
+                if(aClass.qualifiedName != it.advancedBinding!!.name) {
                     return@forEach
                 }
                 bindingOffsets[it.id!!] = aClass.startOffset

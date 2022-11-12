@@ -34,7 +34,7 @@ class KotlinBindingSearchingElementVisitor(
         bindings
             .filter { it.advancedBinding!!.type == "Class" }
             .forEach {
-                if(klass.name != it.advancedBinding!!.name) {
+                if(klass.fqName!!.asString() != it.advancedBinding!!.name) {
                     return@forEach
                 }
                 bindingOffsets[it.id!!] = klass.startOffset
