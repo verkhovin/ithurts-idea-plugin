@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# It Hurts Integration Changelog
+# Resolvt Integration Changelog
 
 ## [Unreleased]
 

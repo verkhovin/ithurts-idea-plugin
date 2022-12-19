@@ -1,2 +1,2 @@
-rootProject.name = "it-hurts-idea-dev.ithurts.plugin"
+rootProject.name = "resolvt-idea-dev.resolvt.plugin"
 

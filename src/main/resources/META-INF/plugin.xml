@@ -1,58 +1,58 @@
 <idea-plugin>
-    <id>dev.ithurts.idea-integration</id>
-    <name>It Hurts Integration</name>
-    <vendor email="n.verkhovin@gmail.com" url="https://ithurts.dev">ItHurts</vendor>
+    <id>dev.resolvt.idea-integration</id>
+    <name>Resolvt Integration</name>
+    <vendor email="n.verkhovin@gmail.com" url="https://resolvt.dev">Resolvt</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>
-    <depends optional="true" config-file="dev.ithurts.idea-integration-org.jetbrains.kotlin.xml">org.jetbrains.kotlin</depends>
-    <depends optional="true" config-file="dev.ithurts.idea-integration-com.intellij.java.xml">com.intellij.java</depends>
+    <depends optional="true" config-file="dev.resolvt.idea-integration-org.jetbrains.kotlin.xml">org.jetbrains.kotlin</depends>
+    <depends optional="true" config-file="dev.resolvt.idea-integration-com.intellij.java.xml">com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationConfigurable parentId="tools" instance="dev.ithurts.plugin.ide.settings.ItHurtsSettingsConfigurable"
-                                 id="dev.ithurts.plugin.ide.settings.ItHurtsSettingsConfigurable"
-                                 displayName="It Hurts"/>
-        <applicationService serviceImplementation="dev.ithurts.plugin.ide.service.CredentialsService"/>
-        <applicationService serviceImplementation="dev.ithurts.plugin.client.ItHurtsClient"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtStorageService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtBrowserService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.EditorDebtDisplayService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.StagedDebtService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.DebtReportingService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.debt.ItHurtsGitRepositoryService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.resolver.BindingOptionsResolver"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.location.BindingLocationService"/>
-        <projectService serviceImplementation="dev.ithurts.plugin.ide.service.binding.BindingNavigationService"/>
-        <postStartupActivity implementation="dev.ithurts.plugin.ide.service.ItHurtsProjectInitiator"/>
-        <toolWindow id="It Hurts" anchor="right"
-                    factoryClass="dev.ithurts.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"
+        <applicationConfigurable parentId="tools" instance="dev.resolvt.plugin.ide.settings.ResolvtSettingsConfigurable"
+                                 id="dev.resolvt.plugin.ide.settings.ResolvtSettingsConfigurable"
+                                 displayName="Resolvt"/>
+        <applicationService serviceImplementation="dev.resolvt.plugin.ide.service.CredentialsService"/>
+        <applicationService serviceImplementation="dev.resolvt.plugin.client.ResolvtClient"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.ResolvtProjectInitiator"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.DebtStorageService"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.DebtBrowserService"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.EditorDebtDisplayService"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.StagedDebtService"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.DebtReportingService"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.ResolvtGitRepositoryService"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.binding.resolver.BindingOptionsResolver"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.binding.location.BindingLocationService"/>
+        <projectService serviceImplementation="dev.resolvt.plugin.ide.service.binding.BindingNavigationService"/>
+        <postStartupActivity implementation="dev.resolvt.plugin.ide.service.ResolvtProjectInitiator"/>
+        <toolWindow id="Resolvt" anchor="right"
+                    factoryClass="dev.resolvt.plugin.ide.toolwindow.DebtBrowserToolWindowFactory"
                     doNotActivateOnStart="true"/>
         <toolWindow id="Report Technical Debt" anchor="left"
-                    factoryClass="dev.ithurts.plugin.ide.toolwindow.ReportDebtToolWindowFactory"
+                    factoryClass="dev.resolvt.plugin.ide.toolwindow.ReportDebtToolWindowFactory"
                     doNotActivateOnStart="true"/>
     </extensions>
 
     <actions>
-        <action id="ItHurtsActions.PostDebtAction" class="dev.ithurts.plugin.ide.action.PostDebtAction"
+        <action id="ResolvtActions.PostDebtAction" class="dev.resolvt.plugin.ide.action.PostDebtAction"
                 text="Add Debt Binding (Report Debt)"
-                description="Report a technical debt to ItHurts"
-                icon="ItHurtsIcons.DEFAULT_ICON"
+                description="Report a technical debt to Resolvt"
+                icon="ResolvtIcons.DEFAULT_ICON"
         >
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
-        <action id="ItHurtsActions.ShowFileDebtsAction" class="dev.ithurts.plugin.ide.action.ShowFileDebtsAction"
+        <action id="ResolvtActions.ShowFileDebtsAction" class="dev.resolvt.plugin.ide.action.ShowFileDebtsAction"
                 text="Show File Technical Debts "
-                description="Show technical debts reported to ItHurts for currently opened file">
+                description="Show technical debts reported to Resolvt for currently opened file">
             <keyboard-shortcut keymap="$default" first-keystroke="alt shift H"/>
         </action>
-        <action id="ItHurtsActions.ShowRepoDebtsAction" class="dev.ithurts.plugin.ide.action.ShowRepoDebtsAction"
+        <action id="ResolvtActions.ShowRepoDebtsAction" class="dev.resolvt.plugin.ide.action.ShowRepoDebtsAction"
                 text="Show Repository Technical Debts"
-                description="Show technical debts reported to ItHurts for this repository">
+                description="Show technical debts reported to Resolvt for this repository">
         </action>
-        <action id="ItHurtsActions.FetchDebtsAction" class="dev.ithurts.plugin.ide.action.FetchDebtsAction"
-                text="Fetch Technical Debts from It Hurts"
-                description="Fetch newly reported technical debts from ItHurts to IDE">
+        <action id="ResolvtActions.FetchDebtsAction" class="dev.resolvt.plugin.ide.action.FetchDebtsAction"
+                text="Fetch Technical Debts from Resolvt"
+                description="Fetch newly reported technical debts from Resolvt to IDE">
         </action>
 
     </actions>
