@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>dev.resolvt.idea-integration</id>
     <name>Resolvt Integration</name>
-    <vendor email="n.verkhovin@gmail.com" url="https://resolvt.dev">Resolvt</vendor>
+    <vendor email="n.verkhovin@gmail.com" url="https://ithurts.dev">Resolvt</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>Git4Idea</depends>

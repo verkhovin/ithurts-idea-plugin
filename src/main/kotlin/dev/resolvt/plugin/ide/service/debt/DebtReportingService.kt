@@ -76,7 +76,7 @@ class DebtReportingService(private val project: Project) {
     private fun dispatchFetchDebtsAction() {
         val actionManager = ActionManager.getInstance()
         actionManager.tryToExecute(
-            actionManager.getAction("Resolvt    Actions.FetchDebtsAction"),
+            actionManager.getAction("ResolvtActions.FetchDebtsAction"),
             ActionCommand.getInputEvent("ResolvtActions.FetchDebtsAction"), null, null, true
         )
     }
