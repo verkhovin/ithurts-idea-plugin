@@ -15,9 +15,8 @@ class FetchDebtsAction : AnAction() {
         val project = e.project ?: return
         val debtStorageService = project.service<DebtStorageService>()
 
-        service<ResolvtClient>().getDebtsForRepo(
-            RepoUtils.getRemote(project),
-        ) {
+        val remoteUrl = RepoUtils.getRemote(project) ?: return
+        service<ResolvtClient>().getDebtsForRepo(remoteUrl) {
             debtStorageService.indexDebts(it)
             ApplicationManager.getApplication().invokeLater {
                 project.service<EditorDebtDisplayService>().renderDebtHighlighters()

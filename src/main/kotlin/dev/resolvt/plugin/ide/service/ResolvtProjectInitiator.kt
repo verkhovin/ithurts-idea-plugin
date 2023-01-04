@@ -17,7 +17,7 @@ import dev.resolvt.plugin.ide.service.debt.ResolvtGitRepositoryService
 class ResolvtProjectInitiator : StartupActivity {
 
     override fun runActivity(project: Project) {
-        val remoteUrl = RepoUtils.getRemote(project)
+        val remoteUrl = RepoUtils.getRemote(project) ?: return
 
         val properties = PropertiesComponent.getInstance(project)
         properties.setValue(PROJECT_REMOTE_PROPERTY_KEY, remoteUrl)
