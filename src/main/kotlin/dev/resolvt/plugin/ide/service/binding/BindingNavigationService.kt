@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiUtil
 import dev.resolvt.plugin.common.FileUtils
 import dev.resolvt.plugin.ide.model.Binding
+import dev.resolvt.plugin.ide.model.BindingStatus
 import dev.resolvt.plugin.ide.model.start
 import dev.resolvt.plugin.ide.service.binding.location.BindingLocationService
 
@@ -17,7 +18,7 @@ class BindingNavigationService(private val project: Project) {
     fun navigateTo(binding: Binding) {
         val file = FileUtils.virtualFileByPath(project, binding.filePath)
         ApplicationManager.getApplication().invokeLater {
-            if (binding.advancedBinding == null) {
+            if (binding.advancedBinding == null || binding.status == BindingStatus.TRACKING_LOST) {
                 FileEditorManager.getInstance(project).openTextEditor(
                     OpenFileDescriptor(project, file, binding.lines.start - 1, 0), true
                 )

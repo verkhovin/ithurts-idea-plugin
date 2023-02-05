@@ -50,7 +50,7 @@ class EditorDebtDisplayService(private val project: Project) {
     }
 
     private fun getLine(binding: Binding, file: VirtualFile, document: Document): Int {
-        if (binding.advancedBinding == null) {
+        if (binding.advancedBinding == null || binding.status == BindingStatus.TRACKING_LOST) {
             return binding.lines.start
         }
         val psiFile = PsiUtil.getPsiFile(project, file)
