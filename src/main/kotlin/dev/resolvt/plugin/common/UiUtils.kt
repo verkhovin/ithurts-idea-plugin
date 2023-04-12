@@ -2,14 +2,14 @@ package dev.resolvt.plugin.common
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
-import dev.resolvt.plugin.ide.toolwindow.ReportDebtToolWindowOld
+import dev.resolvt.plugin.ide.toolwindow.ReportDebtToolWindow
 
 object UiUtils {
     fun rerenderReportDebtToolWindow(project: Project) {
         val toolWindow = getReportDebtToolWindow(project)
         val contentManager = toolWindow.contentManager
         contentManager.removeAllContents(true)
-        val reportDebtToolWindow = ReportDebtToolWindowOld(project)
+        val reportDebtToolWindow = ReportDebtToolWindow(project)
         contentManager.addContent(reportDebtToolWindow.getContent())
         toolWindow.activate(null)
     }

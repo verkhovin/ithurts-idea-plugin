@@ -6,6 +6,6 @@ import com.intellij.openapi.wm.ToolWindowFactory
 
 class ReportDebtToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        toolWindow.contentManager.addContent(ReportDebtToolWindowOld(project).getContent())
+        toolWindow.contentManager.addContent(ReportDebtToolWindow(project).getContent())
     }
 }

@@ -33,7 +33,7 @@ import javax.swing.event.DocumentEvent
 import kotlin.reflect.KMutableProperty0
 
 
-class ReportDebtToolWindowOld(private val project: Project) {
+class ReportDebtToolWindow(private val project: Project) {
     private val stagedDebtService = project.service<StagedDebtService>()
     private val debtReportingService = project.service<DebtReportingService>()
     private val mainBranch: String = project.service<ResolvtGitRepositoryService>().mainBranch
@@ -65,6 +65,7 @@ class ReportDebtToolWindowOld(private val project: Project) {
         reportButton.addActionListener { debtReportingService.reportDebt() }
         titleField.document.addDocumentListener(ValueBindingDocumentListener(stagedDebt::title) {titleField.text})
         descriptionField.document.addDocumentListener(ValueBindingDocumentListener(stagedDebt::description) {descriptionField.text})
+        descriptionField.wrapStyleWord = true
 
         if (isEditing) {
             root.add(cancelEditingButton, "grow, span")
@@ -103,7 +104,7 @@ class ReportDebtToolWindowOld(private val project: Project) {
                     "Fetching the main branch before submitting the debt lets Resolvt Integration plugin adjust " +
                     "the submission relative to the actual code." }, "align right, wrap")
         }
-        panel.add(reportButton,"align right, wrap")
+        panel.add(reportButton,"align right, growx, wrap")
     }
 
     private fun setValues(stagedDebt: EditableDebt) {

@@ -1,12 +1,12 @@
 package dev.resolvt.plugin.ide.service.debt
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.markup.MarkupModel
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.PsiUtil
@@ -36,11 +36,13 @@ class EditorDebtDisplayService(private val project: Project) {
             val debts = debtsService.getDebts(relativePath)
             if (debts.isEmpty()) return@forEach
 
-            ApplicationManager.getApplication().invokeLater {
+            service<DumbService>().smartInvokeLater {
                 val markupModel = fileEditor.editor.markupModel
 
                 val debtGroupsByStartLine = debts.flatMap { debt ->
-                    debt.bindings.map { binding -> getLine(binding, file, markupModel.document) to (debt) }
+                    debt.bindings
+                            .filter { it.filePath == relativePath }
+                            .map { binding -> getLine(binding, file, markupModel.document) to (debt) }
                 }.groupBy({ it.first }, { it.second })
 
                 removeOldHighlighters(markupModel)
