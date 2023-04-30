@@ -36,7 +36,7 @@ class EditorDebtDisplayService(private val project: Project) {
             val debts = debtsService.getDebts(relativePath)
             if (debts.isEmpty()) return@forEach
 
-            service<DumbService>().smartInvokeLater {
+            project.service<DumbService>().smartInvokeLater {
                 val markupModel = fileEditor.editor.markupModel
 
                 val debtGroupsByStartLine = debts.flatMap { debt ->
