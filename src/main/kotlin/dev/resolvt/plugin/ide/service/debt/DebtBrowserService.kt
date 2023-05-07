@@ -19,7 +19,7 @@ import dev.resolvt.plugin.client.ResolvtClient
 import dev.resolvt.plugin.common.UiUtils
 import dev.resolvt.plugin.ide.model.Binding
 import dev.resolvt.plugin.ide.model.DebtView
-import dev.resolvt.plugin.ide.service.CredentialsService
+import dev.resolvt.plugin.ide.service.PluginSettings
 import dev.resolvt.plugin.ide.service.binding.BindingNavigationService
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
@@ -113,7 +113,7 @@ class DebtBrowserService(private val project: Project) {
     }
 
     private fun showDebtInWeb(debtId: String, debts: List<DebtView>) {
-        BrowserUtil.browse("${service<CredentialsService>().getHost()}/debts/$debtId")
+        BrowserUtil.browse("${service<PluginSettings>().settingsState.uri}/debts/$debtId")
     }
 
     private fun editDebt(debtId: String, debts: List<DebtView>) {

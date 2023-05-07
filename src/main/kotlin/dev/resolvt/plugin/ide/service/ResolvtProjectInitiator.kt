@@ -23,8 +23,8 @@ class ResolvtProjectInitiator : StartupActivity {
         properties.setValue(PROJECT_REMOTE_PROPERTY_KEY, remoteUrl)
 
         val credentialsService = service<CredentialsService>()
-
-        if (credentialsService.hasCredentials()) {
+        val tokens = credentialsService.getTokens()
+        if (tokens != null) {
             val client = service<ResolvtClient>()
             client.getRepository(remoteUrl) {
                 project.service<ResolvtGitRepositoryService>().mainBranch = it.mainBranch

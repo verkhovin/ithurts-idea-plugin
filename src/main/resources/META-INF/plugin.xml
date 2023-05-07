@@ -14,6 +14,7 @@
                                  displayName="Resolvt"/>
         <applicationService serviceImplementation="dev.resolvt.plugin.ide.service.CredentialsService"/>
         <applicationService serviceImplementation="dev.resolvt.plugin.client.ResolvtClient"/>
+        <applicationService serviceImplementation="dev.resolvt.plugin.ide.service.PluginSettings"/>
         <projectService serviceImplementation="dev.resolvt.plugin.ide.service.ResolvtProjectInitiator"/>
         <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.DebtStorageService"/>
         <projectService serviceImplementation="dev.resolvt.plugin.ide.service.debt.DebtBrowserService"/>

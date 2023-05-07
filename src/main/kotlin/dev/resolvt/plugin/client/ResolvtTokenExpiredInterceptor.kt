@@ -17,19 +17,16 @@ class ResolvtTokenExpiredInterceptor(private val refreshTokens: () -> Unit) : In
                 return refreshAndRetry(response, chain)
             }
         }
-        return response;
+        return response
     }
 
     private fun refreshAndRetry(response: Response, chain: Interceptor.Chain): Response {
         refreshTokens()
-        val credentialsService = service<CredentialsService>()
-        if (!credentialsService.hasCredentials()) {
-            return response;
-        }
+        val tokens = service<CredentialsService>().getTokens() ?: return response
         val request = chain.request().newBuilder()
             .removeHeader("Authorization")
-            .addHeader("Authorization", "Bearer ${credentialsService.getAccessToken()}")
+            .addHeader("Authorization", "Bearer ${tokens.accessToken}")
             .build()
-        return chain.proceed(request);
+        return chain.proceed(request)
     }
 }

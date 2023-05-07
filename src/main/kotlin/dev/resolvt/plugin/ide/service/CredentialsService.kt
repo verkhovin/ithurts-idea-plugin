@@ -1,5 +1,8 @@
 package dev.resolvt.plugin.ide.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.credentialStore.generateServiceName
@@ -8,41 +11,35 @@ import dev.resolvt.plugin.client.model.Tokens
 
 
 class CredentialsService {
-    fun saveCredentials(tokens: Tokens, host: String) {
-        saveToken(tokens.accessToken, "AccessToken")
-        saveToken(tokens.refreshToken, "RefreshToken")
-        saveToken(host, "Host")
+
+    private val objectMapper: ObjectMapper = ObjectMapper().also { it.registerKotlinModule() }
+
+    companion object {
+        private const val TOKENS_KEY = "Tokens"
+        private const val CREDENTIALS_USERNAME = "tokens"
     }
 
-    fun updateTokens(tokens: Tokens) {
-        saveToken(tokens.accessToken, "AccessToken")
-        saveToken(tokens.refreshToken, "RefreshToken")
+    fun saveTokens(tokens: Tokens) {
+        val tokensAttribute = createCredentialAttributes(TOKENS_KEY)
+        val tokensJson = objectMapper.writeValueAsString(tokens)
+        val credentials = Credentials(CREDENTIALS_USERNAME, tokensJson)
+        PasswordSafe.instance.set(tokensAttribute, credentials)
     }
-
-    fun hasCredentials() =
-        PasswordSafe.instance.get(createCredentialAttributes("AccessToken")) != null
-                && PasswordSafe.instance.get(createCredentialAttributes("RefreshToken")) != null
-
-
-    fun getAccessToken() = PasswordSafe.instance.getPassword(createCredentialAttributes("AccessToken"))
-
-
-    fun getRefreshToken() = PasswordSafe.instance.getPassword(createCredentialAttributes("RefreshToken"))
-
-    fun getHost() = PasswordSafe.instance.getPassword(createCredentialAttributes("Host"))
 
     fun clearTokens() {
-        saveToken(null, "AccessToken")
-        saveToken(null, "RefreshToken")
-        saveToken(null, "Host")
+        val tokensAttribute = createCredentialAttributes(TOKENS_KEY)
+        PasswordSafe.instance.set(tokensAttribute, null)
     }
 
-    private fun saveToken(token: String?, name: String) {
-        val accessTokenAttributes = createCredentialAttributes(name)
-        val accessToken = if (token == null) null else Credentials("", token)
-        PasswordSafe.instance.set(accessTokenAttributes, accessToken)
+    fun getTokens(): Tokens? {
+        val tokensJson = PasswordSafe.instance.getPassword(createCredentialAttributes(TOKENS_KEY))
+            ?: return null
+        return objectMapper.readValue(tokensJson)
     }
+
+    fun getAccessToken() = getTokens()?.accessToken!!
+
+    fun getRefreshToken() = getTokens()?.refreshToken!!
 
     private fun createCredentialAttributes(key: String) = CredentialAttributes(generateServiceName("Resolvt", key))
-
 }

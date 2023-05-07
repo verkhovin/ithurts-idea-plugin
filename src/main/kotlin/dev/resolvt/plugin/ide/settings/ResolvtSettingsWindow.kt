@@ -9,6 +9,7 @@ import com.intellij.ui.layout.panel
 import dev.resolvt.plugin.client.ResolvtClient
 import dev.resolvt.plugin.common.Consts
 import dev.resolvt.plugin.ide.service.CredentialsService
+import dev.resolvt.plugin.ide.service.PluginSettings
 import dev.resolvt.plugin.ide.service.ResolvtProjectInitiator
 import net.miginfocom.swing.MigLayout
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -62,6 +63,7 @@ class ResolvtSettingsWindow {
     private val logoutButton: JButton = JButton("Logout")
 
     private val credentialsService = service<CredentialsService>()
+    private val pluginSettings = service<PluginSettings>()
 
 
     init {
@@ -93,7 +95,8 @@ class ResolvtSettingsWindow {
         connectedPanel.add(accountInfoLabel, "align center, wrap")
         connectedPanel.add(logoutButton, "align center, wrap")
 
-        if (credentialsService.hasCredentials()) {
+        val tokens = credentialsService.getTokens()
+        if (tokens != null) {
             show(connectedPanel)
             showAccountInfo()
         } else {
@@ -111,8 +114,9 @@ class ResolvtSettingsWindow {
         show(connectedPanel)
         accountInfoLabel.text = "Loading..."
         val authCode = this.authCodeField.text
-        service<ResolvtClient>().getTokens(host, authCode, this.codeVerifier!!, {
-            credentialsService.saveCredentials(it, host)
+        service<ResolvtClient>().getTokens(host, authCode, this.codeVerifier!!, {tokens ->
+            pluginSettings.settingsState.uri = host
+            credentialsService.saveTokens(tokens)
             showAccountInfo()
             initProjectData()
         }) {

@@ -12,6 +12,7 @@ import com.intellij.openapi.components.service
 import dev.resolvt.plugin.client.model.*
 import dev.resolvt.plugin.common.Consts
 import dev.resolvt.plugin.ide.service.CredentialsService
+import dev.resolvt.plugin.ide.service.PluginSettings
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -141,12 +142,12 @@ class ResolvtClient {
         )
         handleResponse(
             call.execute(),
-            { tokens: Tokens -> credentialsService.updateTokens(tokens) },
+            { tokens: Tokens -> credentialsService.saveTokens(tokens) },
             { credentialsService.clearTokens() }
         )
     }
 
-    private fun withHost(url: String): String = service<CredentialsService>().getHost() + url
+    private fun withHost(url: String): String = service<PluginSettings>().settingsState.uri + url
 
     private inline fun <reified T> executeAsync(
         request: Request,
