@@ -19,6 +19,11 @@ class DebtStorageService(private val project: Project) {
         return debts!!
     }
 
+    fun getDebts(filePath: String, ids: List<String>): List<DebtView> {
+        return getDebts(filePath)
+            .filter { debtView -> debtView.id in ids }
+    }
+
     fun getDebts(filePath: String) = debts?.get(filePath) ?: emptyList()
 
     fun getDebts(filePath: String, lineNumber: Int) =

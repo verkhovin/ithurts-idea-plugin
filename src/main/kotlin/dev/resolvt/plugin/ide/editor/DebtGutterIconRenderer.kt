@@ -9,10 +9,9 @@ import icons.ResolvtIcons
 import javax.swing.Icon
 
 class DebtGutterIconRenderer(
-    private val debtsCount: Int,
+    private val debtIds: List<String>,
     private val fistDebtTitle: String,
     private val filePath: String,
-    private val lineNumber: Int,
     private val active: Boolean
 ) : GutterIconRenderer() {
     override fun equals(other: Any?): Boolean {
@@ -24,11 +23,12 @@ class DebtGutterIconRenderer(
     }
 
     override fun getIcon(): Icon {
-        return if (active) ResolvtIcons.DEFAULT_ICON else ResolvtIcons.MUTED_ICON;
+        return if (active) ResolvtIcons.DEFAULT_ICON else ResolvtIcons.MUTED_ICON
     }
 
     override fun getTooltipText(): String {
-        return if (debtsCount > 1) "$debtsCount debts" else fistDebtTitle
+        val debtCount = debtIds.size
+        return if (debtCount > 1) "$debtCount debts" else fistDebtTitle
     }
 
     override fun getAccessibleTooltipText(): String {
@@ -39,7 +39,7 @@ class DebtGutterIconRenderer(
         return object : AnAction() {
             override fun actionPerformed(e: AnActionEvent) {
                 val debtsService = e.project!!.service<DebtBrowserService>()
-                debtsService.showDebts(filePath, lineNumber)
+                debtsService.showDebts(filePath, debtIds)
             }
         }
     }

@@ -7,12 +7,6 @@ import dev.resolvt.plugin.ide.model.Binding
 import dev.resolvt.plugin.ide.service.binding.Language
 
 class BindingLocationService {
-//    fun getLocations(psiFile: PsiFile, bindings: List<Binding>): Map<String, Int> {
-//        val bindingSearchingElementVisitor = getBindingSearchingElementVisitor(bindings)
-//        psiFile.accept(bindingSearchingElementVisitor)
-//        return bindingSearchingElementVisitor.bindingOffsets
-//    }
-
     fun getLocation(psiFile: PsiFile, binding: Binding): Int {
         val bindingSearchingElementVisitor = getBindingSearchingElementVisitor(listOf(binding), binding.advancedBinding!!.language)
         psiFile.accept(bindingSearchingElementVisitor)

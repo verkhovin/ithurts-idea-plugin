@@ -32,14 +32,13 @@ class ResolvtProjectInitiator : StartupActivity {
             val debtStorageService = project.service<DebtStorageService>()
             client.getDebtsForRepo(
                 remoteUrl,
-            ) {
-                debtStorageService.indexDebts(it)
+            ) { debts ->
+                debtStorageService.indexDebts(debts)
                 registerFileOpenedEventHandler(project)
                 project.service<EditorDebtDisplayService>().renderDebtHighlighters()
                 ResolvtInitiatorState.isInitialized = true
             }
         }
-
     }
 
     private fun registerFileOpenedEventHandler(project: Project) {

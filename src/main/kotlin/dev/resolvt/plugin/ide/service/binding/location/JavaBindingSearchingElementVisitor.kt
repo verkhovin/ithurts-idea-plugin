@@ -14,16 +14,16 @@ class JavaBindingSearchingElementVisitor    (
     override fun visitMethod(method: PsiMethod) {
         super.visitMethod(method)
         bindings
-            .filter { it.advancedBinding!!.type == "Method" }
-            .forEach {
-                if (method.name != it.advancedBinding!!.name ) {
+            .filter { binding -> binding.advancedBinding!!.type == "Method" }
+            .forEach { binding ->
+                if (method.name != binding.advancedBinding!!.name ) {
                     return@forEach
                 }
                 val params = method.parameterList.parameters.map { it.type.canonicalText }
-                if (params != it.advancedBinding.params) {
+                if (params != binding.advancedBinding.params) {
                     return@forEach
                 }
-                bindingOffsets[it.id!!] = method.startOffset
+                bindingOffsets[binding.id!!] = method.startOffset
             }
     }
 

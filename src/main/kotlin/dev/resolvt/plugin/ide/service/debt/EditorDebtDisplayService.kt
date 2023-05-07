@@ -33,13 +33,13 @@ class EditorDebtDisplayService(private val project: Project) {
             val file = fileEditor.file!!
             val debtsService = project.service<DebtStorageService>()
             val relativePath = FileUtils.getRelativePath(project, file) ?: return@forEach
-            val debts = debtsService.getDebts(relativePath)
+            val debts: List<DebtView> = debtsService.getDebts(relativePath)
             if (debts.isEmpty()) return@forEach
 
             project.service<DumbService>().smartInvokeLater {
                 val markupModel = fileEditor.editor.markupModel
 
-                val debtGroupsByStartLine = debts.flatMap { debt ->
+                val debtGroupsByStartLine: Map<Int, List<DebtView>> = debts.flatMap { debt ->
                     debt.bindings
                             .filter { it.filePath == relativePath }
                             .map { binding -> getLine(binding, file, markupModel.document) to (debt) }
@@ -74,10 +74,9 @@ class EditorDebtDisplayService(private val project: Project) {
                 .none { it.status == BindingStatus.TRACKING_LOST }
             lineHighlighter.gutterIconRenderer =
                 DebtGutterIconRenderer(
-                    debts.size,
+                    debts.map {it.id},
                     debts[0].title,
                     relativePath,
-                    line,
                     renderAsActive
                 )
         }

@@ -35,10 +35,10 @@ class DebtBrowserService(private val project: Project) {
     private var currentLevel: ShowLevel? = null
 
     private val bindingNavigationService: BindingNavigationService = project.service()
+    private val debtStorageService = project.service<DebtStorageService>()
 
-    fun showDebts(filePath: String, lineNumber: Int) {
-        val debtStorageService = project.service<DebtStorageService>()
-        currentDebts = debtStorageService.getDebts(filePath, lineNumber)
+    fun showDebts(filePath: String, debtIds: List<String>) {
+        currentDebts = debtStorageService.getDebts(filePath, debtIds)
         currentLevel = ShowLevel.LINE
         render()
 
