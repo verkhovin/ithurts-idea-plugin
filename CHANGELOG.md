@@ -2,6 +2,9 @@
 
 # Resolvt Integration Changelog
 
-## [Unreleased]
+## Unreleased
+
+## 0.0.8
+Bug fixes :)
 
 ## 0.0.7
