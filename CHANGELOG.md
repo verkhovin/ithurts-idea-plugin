@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+## 0.0.10
+Minor issues fixes in debt browser
+
 ## 0.0.9
 Readme
 

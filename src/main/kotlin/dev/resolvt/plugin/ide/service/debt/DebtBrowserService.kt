@@ -39,6 +39,7 @@ class DebtBrowserService(private val project: Project) {
 
     fun showDebts(filePath: String, debtIds: List<String>) {
         currentDebts = debtStorageService.getDebts(filePath, debtIds)
+            .distinctBy { it.id }
         currentLevel = ShowLevel.LINE
         render()
 
@@ -49,6 +50,7 @@ class DebtBrowserService(private val project: Project) {
     fun showRepoDebts() {
         val debtStorageService = project.service<DebtStorageService>()
         currentDebts = debtStorageService.getDebts().flatMap { it.value }
+            .distinctBy { it.id }
         currentLevel = ShowLevel.REPO
         render()
     }
@@ -56,6 +58,7 @@ class DebtBrowserService(private val project: Project) {
     fun showFileDebts(filePath: String) {
         val debtStorageService = project.service<DebtStorageService>()
         currentDebts = debtStorageService.getDebts(filePath)
+            .distinctBy { it.id }
         currentLevel = ShowLevel.FILE
         render()
     }
